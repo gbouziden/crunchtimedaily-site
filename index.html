@@ -197,6 +197,8 @@ body.has-appbar .wrap{padding-bottom:110px}
 .hist .h .d{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .hist .h .g{letter-spacing:1px}
 .hist .h .sc{font-family:var(--f-display);font-weight:800;font-size:22px}
+.ad{margin:6px 0;min-height:100px}
+.ad-lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:4px}
 .foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .foot a{color:inherit}
 @media (max-width:420px){.top-meta{gap:6px}.chip{font-size:11px;padding:6px 7px;letter-spacing:.03em}.opts{grid-template-columns:1fr}.ev{grid-template-columns:48px 1fr auto}.rv{grid-template-columns:80px 1fr auto}}
@@ -283,6 +285,7 @@ body.has-appbar .wrap{padding-bottom:110px}
     <div id="pbp"></div>
   </section>
 
+  <div id="adFooter"></div>
   <p class="foot">A fan-made daily game. Not affiliated with the NBA or any team. Real endings are built from public play-by-play at <a href="https://www.basketball-reference.com/" target="_blank" rel="noopener">Basketball-Reference.com</a>; win odds come from a league-average possession model, not team-specific ratings. Free play uses invented situations. <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></p>
 </div>
 
@@ -531,6 +534,12 @@ async function api(path, body){
   try{ const r=await fetch(API+path, body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal}:{signal:ctl.signal}); const j=await r.json(); return r.ok?j:{error:j.error||'error'}; }
   catch(e){ return null; } finally{ clearTimeout(t); }
 }
+// Usage counter: anonymous event + the same random id. No cookies, nothing personal.
+function track(ev, mode){
+  if(!PID) return;
+  let ref=''; try{ const h=document.referrer?new URL(document.referrer).hostname:''; if(h && !/crunchtimedaily\.com$/.test(h)) ref=h.replace(/^www\./,''); }catch(e){}
+  try{ fetch(API+'/event',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:PID,ev,mode:mode||'',src:NATIVE?'app':'web',ref})}).catch(()=>{}); }catch(e){}
+}
 function applyRank(d, st){
   if(!st || st.percentile==null) return;
   if(st.players>=2){ d.pct=st.percentile; d.rank=st.rank; d.players=st.players; }
@@ -685,6 +694,7 @@ async function callReal(k){
   await new Promise(r=>setTimeout(r,30));
   const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false};
   const a=readAction(k);
+  if(G.decisions.length===0) track(G.mode==='daily'?'start':'practice', G.mode);
   const ca=coachAction(st.real, snap);
   const d=grade(snap,a,Engine.hash(g.id,'eval',G.i),ca);
   d.realLabel=describeReal(st.real,snap);
@@ -726,7 +736,7 @@ function finishReal(){
     recap:ds.map((d,i)=>({sq:sq[i],sit:`${fmt(d.snap.t)} · ${sitWords(d.snap)} · ${d.snap.poss==='us'?'your':'their'} ball`,
       you:Engine.label(d.a),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
       coach:d.realLabel,coachWp:d.coachWp}))};
-  if(G.mode==='daily'){ store.set(SAVE_KEY(G.day),data); bumpStats(data); native({type:'finished',day:G.day}); }
+  if(G.mode==='daily'){ store.set(SAVE_KEY(G.day),data); bumpStats(data); native({type:'finished',day:G.day}); track('finish','daily'); }
   renderResult(data);
   if(G.mode==='daily' && PID) api('/result',{day:G.day,pid:PID,score,coach:coachScore,grid:data.grid,src:NATIVE?'app':'web'}).then(st=>applyRank(data,st));
 }
@@ -754,6 +764,7 @@ async function callSim(k){
   lockPanel('Grading…');
   await new Promise(r=>setTimeout(r,30));
   const a=readAction(k), s=G.s, idx=G.decisions.length;
+  if(idx===0) track('freeplay','sim');
   const snap=Engine.clone(s);
   const conv=Engine.conventional(snap);
   const d=grade(snap,a,Engine.hash(G.seed,'eval',idx),conv);
@@ -831,6 +842,7 @@ function renderResult(d){
         ${r.same?'<div class="hint">You found the best call.</div>':`<div class="hint">Best: ${esc(r.best)} · ${pct(r.bestWp)}</div>`}
       </div></div>`).join('')}
     </div>
+    <div id="adResult"></div>
     <textarea class="share-box" id="shareBox" rows="5" readonly aria-label="Share text"></textarea>
     <div class="call">
       <button class="btn" id="copyBtn" type="button">Share result</button>
@@ -839,6 +851,7 @@ function renderResult(d){
   $('shareBox').value=shareText(d);
   $('copyBtn').addEventListener('click',async()=>{
     const txt=shareText(d), b=$('copyBtn');
+    track('share', d.mode);
     if(NATIVE){ native({type:'share',text:txt}); return; }
     try{ if(navigator.share && matchMedia('(pointer:coarse)').matches){ await navigator.share({text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
     const fallback=()=>{ const t=$('shareBox'); t.focus(); t.select(); b.textContent='Selected, copy it'; };
@@ -847,6 +860,7 @@ function renderResult(d){
   $('againBtn').addEventListener('click',()=>startReal('archive', ENDINGS[PRACTICE[(Math.random()*PRACTICE.length)|0]]));
   $('sitHead').textContent = d.kind==='real' ? (d.won?`Final. The ${teamOf(d.usAb).nick} won.`:`Final. The ${teamOf(d.usAb).nick} lost.`) : (d.won?'Final. You win.':'Final. You lose.');
   $('sitNote').textContent = 'Here is how each call graded out.';
+  if(ADSENSE) placeAd('adResult', ADSENSE.resultSlot);
   R.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
 }
 
@@ -910,6 +924,16 @@ $('howBtn').addEventListener('click',e=>{ const p=$('howPanel'); p.hidden=!p.hid
 
 // iPhone Safari visitors get a link to the App Store app (only once the app is live).
 const APP_STORE_ID = '';
+// Google AdSense, web only (never inside the iPhone app). Off until a publisher id is configured.
+const ADSENSE = null;
+function adUnit(slot){ return `<div class="ad"><div class="ad-lbl">Advertisement</div><ins class="adsbygoogle" style="display:block" data-ad-client="${ADSENSE.client}" data-ad-slot="${slot}" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`; }
+function pushAd(){ try{ (window.adsbygoogle=window.adsbygoogle||[]).push({}); }catch(e){} }
+function placeAd(where, slot){ if(!ADSENSE||NATIVE||!slot) return; const el=$(where); if(!el||el.dataset.filled) return; el.innerHTML=adUnit(slot); el.dataset.filled='1'; pushAd(); }
+(()=>{ if(!ADSENSE||NATIVE) return;
+  const sc=document.createElement('script'); sc.async=true; sc.crossOrigin='anonymous';
+  sc.src=`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE.client}`; document.head.appendChild(sc);
+  placeAd('adFooter', ADSENSE.footerSlot);
+})();
 (()=>{ try{
   const iPhone=/iPhone|iPod/.test(navigator.userAgent), standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   if(!APP_STORE_ID || NATIVE || !iPhone || standalone || localStorage.getItem('crunchtime:appbarClosed')) return;
@@ -918,6 +942,7 @@ const APP_STORE_ID = '';
   $('appClose').addEventListener('click',()=>{ $('appbar').hidden=true; document.body.classList.remove('has-appbar'); try{ localStorage.setItem('crunchtime:appbarClosed','1'); }catch(e){} });
 }catch(e){} })();
 try{ if(!localStorage.getItem('crunchtime:seenHow')){ $('howPanel').hidden=false; $('howBtn').setAttribute('aria-pressed','true'); localStorage.setItem('crunchtime:seenHow','1'); } }catch(e){}
+track('visit');
 playDaily();
 </script>
 </body>
