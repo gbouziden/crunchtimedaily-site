@@ -184,9 +184,18 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .appbar a.get{font-family:var(--f-display);font-weight:800;font-size:18px;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);text-decoration:none;border-radius:999px;padding:6px 16px}
 .appbar button{background:none;border:0;color:var(--board-text);font-size:20px;line-height:1;padding:4px;cursor:pointer}
 body.has-appbar .wrap{padding-bottom:110px}
+.dist{display:flex;flex-direction:column;gap:5px}
+.dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.dist .bar{height:16px;border-radius:3px;background:var(--accent)}
+.dist .row b{color:var(--ink);text-align:right}
+.hist{display:flex;flex-direction:column;border-top:1px dashed var(--line)}
+.hist .h{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.hist .h .d{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.hist .h .g{letter-spacing:1px}
+.hist .h .sc{font-family:var(--f-display);font-weight:800;font-size:22px}
 .foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .foot a{color:inherit}
-@media (max-width:420px){.opts{grid-template-columns:1fr}.ev{grid-template-columns:48px 1fr auto}.rv{grid-template-columns:80px 1fr auto}}
+@media (max-width:420px){.top-meta{gap:6px}.chip{font-size:11px;padding:6px 7px;letter-spacing:.03em}.opts{grid-template-columns:1fr}.ev{grid-template-columns:48px 1fr auto}.rv{grid-template-columns:80px 1fr auto}}
 </style>
 </head>
 <body>
@@ -200,6 +209,7 @@ body.has-appbar .wrap{padding-bottom:110px}
       <button class="chip solid" id="dailyBtn" type="button">Daily</button>
       <button class="chip" id="archiveBtn" type="button">Archive</button>
       <button class="chip" id="simBtn" type="button">Free play</button>
+      <button class="chip" id="statsBtn" type="button">Stats</button>
       <button class="chip" id="howBtn" type="button" aria-pressed="false">How</button>
     </div>
   </header>
@@ -219,6 +229,16 @@ body.has-appbar .wrap{padding-bottom:110px}
       <span><i class="sq o"></i>Costly (within 10%)</span>
       <span><i class="sq r"></i>Blunder</span>
     </div>
+  </section>
+
+  <section class="panel" id="statsPanel" hidden>
+    <h3>Your stats</h3>
+    <div class="stats" id="statsTop"></div>
+    <h3>Grade distribution</h3>
+    <div class="dist" id="statsDist"></div>
+    <h3>History</h3>
+    <div class="hist" id="statsHist"></div>
+    <p class="hint">Saved on this device. No account needed.</p>
   </section>
 
   <section class="panel" id="archivePanel" hidden>
@@ -818,6 +838,19 @@ function showSavedDaily(saved){
   window.scrollTo(0,0);
 }
 
+/* ---------- stats ---------- */
+function renderStats(){
+  const st=store.get('crunchtime:v2:stats')||{played:0,streak:0,best:0,lastDay:0,beat:0,sum:0};
+  const games=[]; for(let d=DAY; d>=1; d--){ const sv=store.get(SAVE_KEY(d)); if(sv) games.push(sv); }
+  const streak = st.lastDay>=DAY-1 ? st.streak : 0;
+  const bestDay = games.reduce((m,g)=>Math.max(m,g.score),0);
+  $('statsTop').innerHTML = `<span><b>${st.played}</b>Played</span><span><b>${st.played?Math.round(st.sum/st.played):'–'}</b>Avg grade</span><span><b>${streak}</b>Day streak</span><span><b>${st.best}</b>Best streak</span><span><b>${games.length?bestDay:'–'}</b>Best day</span><span><b>${st.beat}</b>Beat coach</span>`;
+  const buckets=[[90,100,'90–100'],[75,89,'75–89'],[50,74,'50–74'],[25,49,'25–49'],[0,24,'0–24']];
+  const counts=buckets.map(([a,b])=>games.filter(g=>g.score>=a&&g.score<=b).length), max=Math.max(1,...counts);
+  $('statsDist').innerHTML = buckets.map(([,,l],i)=>`<div class="row"><span>${l}</span><span><span class="bar" style="display:block;width:${counts[i]?Math.max(4,100*counts[i]/max):0}%"></span></span><b>${counts[i]}</b></div>`).join('');
+  $('statsHist').innerHTML = games.length ? games.map(g=>`<div class="h"><span class="d">#${g.day}</span><span><span>${esc(teamOf(g.usAb).nick)} vs ${esc(teamOf(g.themAb).nick)}</span><br><span class="g">${g.grid}</span></span><span class="sc">${g.score}</span></div>`).join('') : '<p class="hint">Play today\'s ending to start your history.</p>';
+}
+
 /* ---------- archive ---------- */
 function renderArchive(){
   const L=$('gameList');
@@ -833,6 +866,7 @@ $('dailyBtn').textContent=`Daily #${DAY}`;
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',()=>{ const p=$('archivePanel'); p.hidden=!p.hidden; if(!p.hidden){ renderArchive(); p.scrollIntoView({block:'nearest'}); } });
 $('simBtn').addEventListener('click',startSim);
+$('statsBtn').addEventListener('click',()=>{ const p=$('statsPanel'); p.hidden=!p.hidden; if(!p.hidden){ renderStats(); p.scrollIntoView({block:'nearest'}); } });
 $('howBtn').addEventListener('click',e=>{ const p=$('howPanel'); p.hidden=!p.hidden; e.currentTarget.setAttribute('aria-pressed',String(!p.hidden)); });
 
 // iPhone Safari visitors get a link to the App Store app (only once the app is live).
