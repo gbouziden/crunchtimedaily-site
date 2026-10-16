@@ -255,6 +255,8 @@ body.has-appbar .wrap{padding-bottom:110px}
 .who{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
 .wh{text-align:left;border:1.5px solid var(--line);border-radius:6px;padding:7px 8px;background:transparent;cursor:pointer;display:flex;flex-direction:column;gap:1px}
 .wh b{font-size:13.5px}.wh small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.pf.soft{background:var(--muted)}
+.pf{font-family:var(--f-mono);font-size:10px;font-weight:700;color:#fff;background:var(--bad);border-radius:3px;padding:0 4px;vertical-align:1px}
 .wh.on{border-color:var(--accent);background:var(--accent-soft)}
 .crowd{border:1.5px solid var(--line);border-radius:6px;padding:9px 11px;font-size:14px}
 .cr-rows{display:flex;flex-direction:column;gap:4px;margin-top:6px}
@@ -273,6 +275,14 @@ body.has-appbar .wrap{padding-bottom:110px}
 .fl{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;font-variant-numeric:tabular-nums}.fl th,.fl td{padding:4px 4px;border-bottom:1px dashed var(--line);text-align:right}.fl th:first-child,.fl td:first-child{text-align:left}.fl th{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);font-weight:600}.fl small{color:var(--muted)}
 .ghostrow{background:color-mix(in srgb,var(--muted) 10%,transparent)}
 .h2h.ghost .h2-big{font-size:clamp(26px,7vw,38px)}
+.teampick{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}
+.teampick select{font:inherit;font-size:15px;padding:6px 8px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.ccard{border-radius:10px;padding:10px;color:#fff;min-height:120px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:inset 0 0 0 2px rgba(255,255,255,.15)}
+.ccard b{font-family:var(--f-display);font-weight:900;font-size:22px;line-height:.95;text-transform:uppercase}
+.ccard small{font-family:var(--f-mono);font-size:10.5px;opacity:.9}
+.ccard .ck{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;opacity:.8}
+.newcard{border:2px solid var(--led);border-radius:10px;padding:10px 12px;font-size:15px}
 .dist{display:flex;flex-direction:column;gap:5px}
 .dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .dist .bar{height:16px;border-radius:3px;background:var(--accent)}
@@ -363,6 +373,7 @@ body.cb-shake .wrap{animation:cbShake .35s}
       <button class="chip" id="archiveBtn" type="button">Archive</button>
       <button class="chip live" id="liveBtn" type="button">● Live</button>
       <button class="chip" id="survBtn" type="button">Survival</button>
+      <button class="chip" id="vsBtn" type="button">1v1</button>
       <button class="chip" id="simBtn" type="button">Free play</button>
       <button class="chip" id="statsBtn" type="button">Stats</button>
       <button class="chip pro" id="proBtn" type="button">Pro</button>
@@ -370,6 +381,11 @@ body.cb-shake .wrap{animation:cbShake .35s}
     </div>
   </header>
 
+  <dialog class="sheet panel" id="vsPanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
+    <h3>Showdown · 1v1</h3>
+    <p class="hint">You and a friend each coach one side of the same real tied ending. Each possession you both lock in a call at the same time: the offense picks the play, the defense picks the defense. Then it plays out.</p>
+    <div id="vsBody"><button class="btn" id="vsCreate" type="button">Start a match</button></div>
+  </dialog>
   <dialog class="sheet panel" id="livePanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
     <h3>Crunch Time Live</h3>
     <p class="hint">When a real NBA game is within 5 points in the last two minutes, call the next possession before it happens. Then see what the real coach did.</p>
@@ -380,6 +396,7 @@ body.cb-shake .wrap{animation:cbShake .35s}
     <div class="steps"><div><b>1</b><span><strong>Make the call.</strong> A real NBA game, the last minute, real players on the floor. Pick the play and who shoots.</span></div>
     <div><b>2</b><span><strong>Watch it play out.</strong> Then see what the real coach did and what actually happened.</span></div>
     <div><b>3</b><span><strong>Beat the real coach.</strong> Every call is graded on win chance. One new ending every day.</span></div></div>
+    <label class="teampick">Your team (optional, for fan leagues) <select class="teamSel"><option value="">No team</option><option value="ATL">ATL</option><option value="BOS">BOS</option><option value="BKN">BKN</option><option value="CHA">CHA</option><option value="CHI">CHI</option><option value="CLE">CLE</option><option value="DAL">DAL</option><option value="DEN">DEN</option><option value="DET">DET</option><option value="GSW">GSW</option><option value="HOU">HOU</option><option value="IND">IND</option><option value="LAC">LAC</option><option value="LAL">LAL</option><option value="MEM">MEM</option><option value="MIA">MIA</option><option value="MIL">MIL</option><option value="MIN">MIN</option><option value="NOP">NOP</option><option value="NYK">NYK</option><option value="OKC">OKC</option><option value="ORL">ORL</option><option value="PHI">PHI</option><option value="PHX">PHX</option><option value="POR">POR</option><option value="SAC">SAC</option><option value="SAS">SAS</option><option value="TOR">TOR</option><option value="UTA">UTA</option><option value="WAS">WAS</option></select></label>
     <button class="btn" type="button" data-close>Let's go</button>
   </dialog>
   <dialog class="sheet panel how" id="howPanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
@@ -406,6 +423,11 @@ body.cb-shake .wrap{animation:cbShake .35s}
     <div class="stats" id="statsTop"></div>
     <h3>Grade distribution</h3>
     <div class="dist" id="statsDist"></div>
+    <h3>Fan leagues · this week</h3>
+    <label class="teampick">Your team <select class="teamSel"><option value="">No team</option><option value="ATL">ATL</option><option value="BOS">BOS</option><option value="BKN">BKN</option><option value="CHA">CHA</option><option value="CHI">CHI</option><option value="CLE">CLE</option><option value="DAL">DAL</option><option value="DEN">DEN</option><option value="DET">DET</option><option value="GSW">GSW</option><option value="HOU">HOU</option><option value="IND">IND</option><option value="LAC">LAC</option><option value="LAL">LAL</option><option value="MEM">MEM</option><option value="MIA">MIA</option><option value="MIL">MIL</option><option value="MIN">MIN</option><option value="NOP">NOP</option><option value="NYK">NYK</option><option value="OKC">OKC</option><option value="ORL">ORL</option><option value="PHI">PHI</option><option value="PHX">PHX</option><option value="POR">POR</option><option value="SAC">SAC</option><option value="SAS">SAS</option><option value="TOR">TOR</option><option value="UTA">UTA</option><option value="WAS">WAS</option></select></label>
+    <div class="hist" id="fanBoard"><p class="hint">Loading…</p></div>
+    <h3>Clutch Cards</h3>
+    <div class="cards" id="cardBox"></div>
     <h3>Leaderboard · last 30 days</h3>
     <div class="hist" id="statsBoard"><p class="hint">Loading…</p></div>
     <form class="namef" id="nameForm"><input id="nameIn" maxlength="18" placeholder="Your name on the board" autocomplete="off"><button class="btn ghost" type="submit">Save</button></form>
@@ -542,7 +564,7 @@ const Engine = (() => {
   }
   const D = s => s.us - s.them;
   const other = side => side==='us'?'them':'us';
-  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look,lu:s.lu,nm:s.nm,toThem:s.toThem,floor:s.floor}}
+  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look,lu:s.lu,nm:s.nm,toThem:s.toThem,floor:s.floor,pf:s.pf}}
   function evalOne(s,a,seed,N=2000){ let w=0; for(let i=0;i<N;i++){ const c=clone(s), r=mulberry32(hash(seed,i)); applyUser(c,a,r,null); let g=0; while(!c.over && g++<40) applyUser(c,smart(c),r,null); w+=result(c); } return w/N; }
   // Team shooting relative to league average (1 = average). Set per real game from season stats.
   const R = (s,side) => (s.r&&s.r[side]) || {f2:1,f3:1,ft:FT[side]};
@@ -576,7 +598,8 @@ const Engine = (() => {
   function intentionalFoul(s,shooter,rng,ev){
     const dt = Math.min(1.5+rng()*1.5, s.t*0.5);
     tick(s,dt);
-    const target=role(s,shooter,'drv')||role(s,shooter,'star'), fouler=other5(s,other(shooter),3);
+    const target=role(s,shooter,'drv')||role(s,shooter,'star');
+    let fouler=other5(s,other(shooter),3); for(let k=0;k<5 && s.pf && s.pf[fouler]>=5;k++) fouler=other5(s,other(shooter),3+k+1);
     s._ftWho=target;
     // Fouling on purpose isn't free: sometimes it's ruled a foul on a three-point try, or flagrant.
     const r=rng(), trailBy3 = (shooter==='us'? -D(s) : D(s)) >= 3;
@@ -751,7 +774,15 @@ const Engine = (() => {
     log(ev,s,'them','They grab it.'); s.poss='them'; s.sc=24; return advance(s,rng,ev);
   }
   function evalSpecial(s,choice,seed,N=3000){ let w=0; for(let i=0;i<N;i++){ const c=clone(s), r=mulberry32(hash(seed,i)); ftSpecial(c,choice,r,null); let g=0; while(!c.over && g++<40) applyUser(c,smart(c),r,null); w+=result(c); } return w/N; }
-  return {FTMISS,ftSpecial,evalSpecial,evalOne,mulberry32,hash,PLAYS,TEMPOS,DEFS,LOOKS,LEANS,pickLook,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
+  // Head-to-head: the offense's call meets the defense's call (no AI on either side).
+  function resolve(s, off, def, rng, ev){
+    const side=s.poss;
+    if(def.def==='foul') intentionalFoul(s, side, rng, ev);
+    else { if(off.to){ if(side==='us') s.toUs=Math.max(0,s.toUs-1); else s.toThem=Math.max(0,(s.toThem||0)-1); }
+      runOffense(s, side, off.play, off.tempo, !!off.to, def.def, rng, ev, null, off.who); }
+    if(s.t<=0.05){ s.t=0; s.over=true; }
+  }
+  return {resolve,FTMISS,ftSpecial,evalSpecial,evalOne,mulberry32,hash,PLAYS,TEMPOS,DEFS,LOOKS,LEANS,pickLook,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
 })();
 
 /* ======================= DATA ======================= */
@@ -851,6 +882,7 @@ function closeSheet(id){ const d=$(id); if(d&&d.open) d.close(); }
 document.addEventListener('click',e=>{ if(e.target.closest('[data-close]')) e.target.closest('dialog').close(); else if(e.target.tagName==='DIALOG') e.target.close(); });
 function setMode(m){
   if(m!=='live' && LIVE.timer){ clearInterval(LIVE.timer); LIVE.timer=null; }
+  if(m!=='vs' && VS.timer){ clearInterval(VS.timer); VS.timer=null; }
   $('dailyBtn').classList.toggle('solid',m==='daily');
   $('survBtn').classList.toggle('solid',m==='survival');
   $('archiveBtn').classList.toggle('solid',m==='archive');
@@ -1065,7 +1097,7 @@ function renderPanel(k){
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${G.themAb} ${Engine.D(s)<0?'lead':Engine.D(s)>0?'trail':'are tied'}; expect them to play the clock that way.</span></div>`;
   }
   if(k==='off' && s.lu&&s.lu.us&&s.lu.us.p) wireWho(s);
-  $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : G.kind==='live' ? callLive(k) : callSim(k));
+  $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : G.kind==='live' ? callLive(k) : G.kind==='vs' ? callVs(k) : callSim(k));
 }
 // Pick the shooter from the real five. The default follows the play: best shooter for a spot-up three,
 // top scorer for an isolation or pick-and-roll, the best driver for a rim attack.
@@ -1073,7 +1105,7 @@ function playerName(id){ return (G&&G.g&&G.g.players&&G.g.players[id]) || id; }
 function pstatOf(id){ return (G&&G.g&&G.g.pstats&&G.g.pstats[id]) || null; }
 function floorCard(s){
   const f=s.floor||(G.g&&G.g.steps&&G.g.steps[G.i]&&G.g.steps[G.i].state.floor); if(!f||!G.g.pstats) return '';
-  const pc=x=>x==null?'–':(x*100).toFixed(0)+'%', row=id=>{ const p=G.g.pstats[id]||{}; return `<tr><td>${esc(playerName(id))}<small> ${esc(p.pos||'')}</small></td><td>${p.pts!=null?p.pts.toFixed(1):'–'}</td><td>${pc(p.fg3)}</td><td>${pc(p.fg2)}</td><td>${pc(p.ft)}</td></tr>`; };
+  const pf=s.pf||{}, pc=x=>x==null?'–':(x*100).toFixed(0)+'%', row=id=>{ const p=G.g.pstats[id]||{}; return `<tr><td>${esc(playerName(id))}<small> ${esc(p.pos||'')}</small>${pf[id]?` <span class="pf${pf[id]>=5?'':' soft'}">${pf[id]} PF</span>`:''}</td><td>${p.pts!=null?p.pts.toFixed(1):'–'}</td><td>${pc(p.fg3)}</td><td>${pc(p.fg2)}</td><td>${pc(p.ft)}</td></tr>`; };
   const tbl=(side,ab)=>`<table class="fl"><tr><th>${esc(ab)}</th><th>PPG</th><th>3P%</th><th>2P%</th><th>FT%</th></tr>${(f[side]||[]).map(row).join('')}</table>`;
   return `<details class="floor"><summary>On the floor · season stats</summary>${tbl('us',G.usAb)}${tbl('them',G.themAb)}</details>`;
 }
@@ -1083,7 +1115,8 @@ function wireWho(s){
   const stat = (id,play) => { const p=pstatOf(id); if(!p) return ''; const f=x=>x==null?'–':(x*100).toFixed(0)+'%';
     return play==='three'?`${f(p.fg3)} 3P`:play==='rim'?`${f(p.fg2)} 2P · ${f(p.ft)} FT`:`${p.pts!=null?p.pts.toFixed(1):'–'} PPG`; };
   const draw = () => { const play=document.querySelector('input[name=play]:checked').value, cur=row.dataset.sel||def(play);
-    row.innerHTML = L.p.map(r=>`<button type="button" class="wh${r[0]===cur?' on':''}" data-id="${r[0]}"><b>${esc(playerName(r[0]))}</b><small>${stat(r[0],play)}</small></button>`).join('');
+    const pf=s.pf||{};
+    row.innerHTML = L.p.map(r=>`<button type="button" class="wh${r[0]===cur?' on':''}" data-id="${r[0]}"><b>${esc(playerName(r[0]))}${pf[r[0]]>=5?` <span class="pf">${pf[r[0]]} PF</span>`:''}</b><small>${stat(r[0],play)}</small></button>`).join('');
     row.querySelectorAll('.wh').forEach(b=>b.addEventListener('click',()=>{ row.dataset.sel=b.dataset.id; draw(); })); };
   document.querySelectorAll('input[name=play]').forEach(i=>i.addEventListener('change',()=>{ delete row.dataset.sel; draw(); }));
   draw();
@@ -1180,6 +1213,7 @@ const pts = loss => Math.max(0, 1-loss/.12);
 
 /* ======================= REAL ENDINGS ======================= */
 function startReal(mode, ending){
+  if(typeof G==='object' && G) G.clutch=null;
   const g = ending;
   const first = g.steps[0].state;
   G = {kind:'real', mode, day:DAY, g, i:0, decisions:[], busy:false,
@@ -1226,7 +1260,7 @@ function realStepAt(t, poss){ // the real possession closest in time, preferring
 function decorate(s){
   const g=G.g, rs=realStepAt(s.t, s.poss);
   s.r=g.rates; s.nm=g.players||null; s.toThem=s.toThem!=null?s.toThem:rs.state.toThem;
-  s.lu=(rs.state&&rs.state.lu)||null; s.floor=(rs.state&&rs.state.floor)||null;
+  s.lu=(rs.state&&rs.state.lu)||null; s.floor=(rs.state&&rs.state.floor)||null; s.pf=(rs.state&&rs.state.pf)||null;
   s.look=Engine.pickLook(Engine.hash(g.id,'look',G.decisions.length), s);
   return s;
 }
@@ -1301,6 +1335,7 @@ async function callReal(k){
   // play YOUR call out
   const ev=[]; const rng=Engine.mulberry32(Engine.hash(g.id,'play',idx,Engine.key(a),a.who||''));
   Engine.applyUser(G.s, a, rng, ev);
+  { const cl=clutchFrom(ev, snap, a); if(cl) G.clutch=cl; }
   if(G.s.over && Engine.D(G.s)===0){
     const otWin=Engine.mulberry32(Engine.hash(g.id,'ot',G.s.us))()<.5, o=5+(Engine.hash(g.id)%6);
     G.s.us+=otWin?o+3:o; G.s.them+=otWin?o:o+3;
@@ -1356,6 +1391,7 @@ async function finishReal(){
     recap:ds.map((d,i)=>({sq:sq[i],sit:`${fmt(d.snap.t)} · ${sitWords(d.snap)} · ${d.snap.poss==='us'?'your':'their'} ball`,
       you:Engine.label(d.a)+(d.a.who?` · ${playerName(d.a.who)}`:''),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
       coach:d.onReal?d.realLabel:null,coachWp:d.onReal?d.coachWp:null,note:d.note||''}))};
+  if(won && G.clutch){ const cs=cards(); if(!cs.some(c=>c.id===G.clutch.id)){ cs.push(G.clutch); store.set('crunchtime:cards',cs); data.newCard=G.clutch; } }
   await loadCoaches();
   data.coachPct=coachPct(score);
   const style = G.mode==='daily' ? addStyle(styleOf(ds)) : (()=>{ const a=store.get('crunchtime:style')||{off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0}, b=styleOf(ds); for(const k in b) a[k]+=b[k]; return a; })();
@@ -1367,7 +1403,7 @@ async function finishReal(){
   await Buzzer.play(data);
   if(G.mode==='survival'){ survivalResult(data); return; }
   renderResult(data);
-  if(G.mode==='daily' && PID) api('/result',{day:G.day,pid:PID,score,coach:coachScore,grid:data.grid,src:NATIVE?'app':'web'}).then(st=>applyRank(data,st));
+  if(G.mode==='daily' && PID) api('/result',{day:G.day,pid:PID,score,coach:coachScore,grid:data.grid,src:NATIVE?'app':'web',team:myTeam()||undefined}).then(st=>applyRank(data,st));
   if(G.mode==='daily') saveGhost(data);
 }
 
@@ -1493,6 +1529,7 @@ function shareText(d){
     if(d.coachLike) lines.push(`Coached like ${d.coachLike}`);
     lines.push(verdict(d));
     if(GHOST&&GHOST.run&&(d.mode==='daily'&&GHOST.day===d.day||G&&G.ghostDay===GHOST.day)) lines.push(d.score>GHOST.run.score?`👻 Beat ${ghostName()}'s ${GHOST.run.score}`:d.score===GHOST.run.score?`👻 Tied ${ghostName()}'s ${GHOST.run.score}`:`👻 Lost to ${ghostName()}'s ${GHOST.run.score}`);
+    if(d.newCard) lines.push(`🃏 Clutch card: ${d.newCard.name}`);
     if(d.phil) lines.push('🧘 Found Phil Jackson #FindPhil');
     if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak${d.froze?' (🧊 freeze used)':''}`);
     lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.us}-${d.them}${d.realUs!=null&&d.won!==d.realWon?(d.won?' (they lost in real life)':' (they won in real life)'):''}`);
@@ -1540,6 +1577,7 @@ function renderResult(d){
       <div style="text-align:right"><div class="res-verdict">${tier}</div><div class="hint">${esc(verdict(d))}</div></div>
     </div>
     ${d.kind==='real'&&GHOST&&(d.mode==='daily'&&GHOST.day===d.day || G&&G.ghostDay===GHOST.day)?ghostCard(d):''}
+    ${d.newCard?`<div class="newcard">🃏 <b>New Clutch Card:</b> ${esc(d.newCard.name)}, ${esc(d.newCard.desc)}. See your collection in Stats.</div>`:''}
     ${d.phil?`<div class="phil">🧘 <b>You found Phil Jackson.</b> Five or more calls, every one the single best option. Almost nobody does this.</div>`:''}
     ${d.kind==='real'?`<div class="h2h ${d.score>=d.coachScore?'won':'lost'}">
       <div class="h2-k">You vs ${esc(d.coachFull||'the real coach')}</div>
@@ -1776,6 +1814,83 @@ function finishLive(){
     <textarea class="share-box" rows="4" readonly>${txt}</textarea><div class="call"><button class="btn ghost" type="button" onclick="openSheet('livePanel');pollLiveList()">Other live games</button></div></div>`;
 }
 
+/* ---------- Showdown (1v1) ---------- */
+const VS = { code:null, seat:null, timer:null, room:null };
+function vsMirror(s){ if(VS.seat!=='guest') return s; const m={...s, us:s.them, them:s.us, poss:s.poss==='us'?'them':'us', toUs:s.toThem||0, toThem:s.toUs};
+  if(s.lu) m.lu={us:s.lu.them, them:s.lu.us}; if(s.floor) m.floor={us:s.floor.them, them:s.floor.us}; if(s.r) m.r={us:s.r.them, them:s.r.us}; return m; }
+async function vsCreate(){
+  await loadIndex(); const pool=Object.keys(INDEX.games).filter(id=>INDEX.games[id].k==='tied' && !INDEX.games[id].c);
+  const ending=pool[(Math.random()*pool.length)|0]; let nm=''; try{ nm=localStorage.getItem('crunchtime:name')||''; }catch(e){}
+  const r=await api('/room',{pid:PID, ending, name:nm}); if(!r||!r.code){ $('vsBody').innerHTML='<p class="hint">Could not start a match. Try again.</p>'; return; }
+  VS.code=r.code; VS.seat='host';
+  const link=`https://crunchtimedaily.com/?room=${r.code}`;
+  $('vsBody').innerHTML=`<p>Send this to a friend:</p><div class="code">${r.code}</div><textarea class="share-box" rows="2" readonly>${link}</textarea>
+    <div class="call"><button class="btn" id="vsShare" type="button">Send link</button></div><p class="hint" id="vsWait">Waiting for your friend to join…</p>`;
+  $('vsShare').onclick=async()=>{ const txt=`1v1 me in Crunch Time: we each coach one side of a real tied NBA ending. ${link}`; try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){} try{ await navigator.clipboard.writeText(txt); $('vsShare').textContent='Copied'; }catch(e){} };
+  clearInterval(VS.timer); VS.timer=setInterval(async()=>{ const st=await api('/room/'+VS.code); if(st&&st.joined){ clearInterval(VS.timer); closeSheet('vsPanel'); vsStart(st); } }, 2000);
+}
+async function vsJoin(code){
+  let nm=''; try{ nm=localStorage.getItem('crunchtime:name')||''; }catch(e){}
+  const r=await api('/room/join',{pid:PID, code, name:nm}); if(!r||!r.seat){ alert((r&&r.error)||'Could not join that match.'); return; }
+  VS.code=code.toUpperCase(); VS.seat=r.seat; const st=await api('/room/'+VS.code); if(st) vsStart(st);
+}
+async function vsStart(st){
+  await loadIndex(); const g=await getEnding(st.ending); VS.room=st;
+  const first=g.steps.find(s=>!s.auto)||g.steps[0];
+  const truth={...first.state, sc:24, over:false, r:g.rates, nm:g.players, toThem:first.state.toThem!=null?first.state.toThem:2};
+  const hostIsUs=true, mine=VS.seat==='host';
+  const gv = mine ? g : {...g, rec:g.rec?{us:g.rec.them,them:g.rec.us}:null, usFull:g.themFull, themFull:g.usFull, usAb:g.themAb, themAb:g.usAb};
+  G={kind:'vs', mode:'vs', g:gv, truth, idx:0, decisions:[], busy:false, startTo:2,
+     usAb: mine?g.usAb:g.themAb, themAb: mine?g.themAb:g.usAb,
+     oppName: (mine?st.guestName:st.hostName)||'your friend'};
+  resetView(); setMode('vs'); Court.setLineup(null);
+  const U=teamOf(G.usAb), T=teamOf(G.themAb);
+  $('matchup').textContent=`Showdown ${VS.code} · you coach the ${U.nick} vs ${G.oppName} (${T.nick})`;
+  pushEvents([{t:truth.t,side:'',text:`Showdown: ${g.title}. You coach the ${U.nick}. ${G.oppName} coaches the ${T.nick}.`,us:0,them:0,cls:'note'}],true);
+  vsTurn();
+}
+function vsView(){ const v=vsMirror(G.truth); G.s=v; return v; }
+function vsTurn(){
+  const v=vsView(); renderBoard(); Court.setOffense(v.poss); Court.startIdle();
+  if(G.truth.over){ vsFinish(); return; }
+  $('sitHead').textContent=`${sitWords(v)}, ${v.poss==='us'?'your':'their'} ball, ${fmt(v.t)}`;
+  $('sitNote').textContent=v.poss==='us'?'You have the ball. Call the play.':`${G.oppName} has the ball. Call the defense.`;
+  renderPanel(v.poss==='us'?'off':'def');
+}
+async function callVs(k){
+  if(G.busy) return; G.busy=true; const a=readAction(k);
+  lockPanel('Locked'); $('panel').insertAdjacentHTML('beforeend',`<p class="hint">Locked in. Waiting for ${esc(G.oppName)}…</p>`);
+  await api('/room/call',{pid:PID, code:VS.code, idx:G.idx, call:a});
+  clearInterval(VS.timer); VS.timer=setInterval(async()=>{
+    const st=await api('/room/'+VS.code); const c=st&&st.calls&&st.calls[String(G.idx)];
+    if(c&&c.host&&c.guest){ clearInterval(VS.timer); vsResolve(c); }
+  }, 1500);
+}
+async function vsResolve(c){
+  const s=G.truth, offSeat = s.poss==='us' ? 'host' : 'guest', off=c[offSeat], def=c[offSeat==='host'?'guest':'host'];
+  const ev=[]; Engine.resolve(s, off.def?{play:'pnr',tempo:'normal'}:off, def.def?def:{def:'straight'}, Engine.mulberry32(Engine.hash(VS.room.seed,'vs',G.idx)), ev);
+  if(s.over && s.us===s.them){ const hostWin=Engine.mulberry32(Engine.hash(VS.room.seed,'ot'))()<.5; const o=5+(VS.room.seed%6); s.us+=hostWin?o+3:o; s.them+=hostWin?o:o+3;
+    ev.push({t:0,side:'',text:`Tied at the end. Overtime goes to the ${teamOf(hostWin?G.g.usAb:G.g.themAb).nick}.`,us:s.us,them:s.them,cls:'note'}); }
+  const mineOff = (offSeat===VS.seat), myCall=mineOff?off:def, theirCall=mineOff?def:off;
+  const lbl=x=>x.def?Engine.DEFS[x.def].name:Engine.label(x)+(x.who?` · ${playerName(x.who)}`:'');
+  const flip=e=>VS.seat==='guest'?{...e, side:e.side==='us'?'them':e.side==='them'?'us':e.side, us:e.them, them:e.us}:e;
+  $('panel').innerHTML=`<div class="reveal"><div class="rv-rows"><div class="rv me"><span class="who">You</span><span class="what">${esc(lbl(myCall))}</span><span class="wp"></span></div>
+    <div class="rv"><span class="who">${esc(G.oppName)}</span><span class="what">${esc(lbl(theirCall))}</span><span class="wp"></span></div></div>
+    <div class="happened"><div class="hd">How it played out</div><ul>${ev.map(flip).map(e=>`<li><span class="tt">${fmt(e.t)}</span>${esc(e.text)}</li>`).join('')}</ul></div>
+    <div class="call"><button class="btn" id="vsNext" type="button">${s.over?'See the final':'Next possession'}</button></div></div>`;
+  await pushEvents(ev.map(flip), false);
+  G.idx++; G.busy=false; renderBoard();
+  $('vsNext').onclick=()=>vsTurn();
+}
+function vsFinish(){
+  const v=vsView(), won=v.us>v.them; renderBoard(); $('panel').hidden=false;
+  const txt=`Crunch Time 1v1 🏀\n${won?'I beat':'I lost to'} ${G.oppName} ${v.us}-${v.them} coaching the ${teamOf(G.usAb).nick}\nRun it back: https://crunchtimedaily.com`;
+  $('panel').innerHTML=`<div class="reveal"><div class="h2h ${won?'won':'lost'}"><div class="h2-k">Showdown ${VS.code}</div><div class="h2-big">${won?'You win':'You lose'} ${v.us}–${v.them}</div>
+    <div class="h2-row"><b>You</b><span>${esc(teamOf(G.usAb).nick)}</span></div><div class="h2-row"><b>${esc(G.oppName)}</b><span>${esc(teamOf(G.themAb).nick)}</span></div></div>
+    <textarea class="share-box" rows="3" readonly>${txt}</textarea><div class="call"><button class="btn" type="button" onclick="openSheet('vsPanel')">New match</button></div></div>`;
+  if(won) Buzzer.play({kind:'vs', won:true, us:v.us, them:v.them, usAb:G.usAb, score:0, coachScore:0});
+}
+
 /* ---------- pro ---------- */
 // In the iPhone app everything is unlocked (no web checkout inside the app, per App Store rules).
 const isPro = () => { if(NATIVE) return true; try{ return !!localStorage.getItem('crunchtime:pro'); }catch(e){ return false; } };
@@ -1847,6 +1962,29 @@ function survivalResult(d){
   const again=$('againBtn'); if(again) again.hidden=true;
   if(!alive && PID){ api('/survival',{pid:PID,run:SURV.run}).then(()=>{}); SURV.run=0; SURV.seen=[]; SURV.grids=[]; saveSurv(); }
   $('shareBox').value=shareText(d);
+}
+
+/* ---------- fan leagues + clutch cards ---------- */
+const myTeam = () => { try{ return localStorage.getItem('crunchtime:team')||''; }catch(e){ return ''; } };
+document.addEventListener('change',e=>{ if(e.target.classList&&e.target.classList.contains('teamSel')){ try{ localStorage.setItem('crunchtime:team',e.target.value); }catch(err){} document.querySelectorAll('.teamSel').forEach(s=>s.value=e.target.value); if($('statsPanel').open) renderFans(); } });
+function renderFans(){
+  document.querySelectorAll('.teamSel').forEach(s=>s.value=myTeam());
+  api(`/fans?day=${DAY}`).then(r=>{ const rows=r&&r.rows||[], me=myTeam();
+    $('fanBoard').innerHTML = rows.length ? rows.slice(0,10).map((x,i)=>`<div class="h${x.team===me?' me':''}"><span class="d">${i+1}</span><span>${esc(teamOf(x.team).nick)} fans<br><span class="d">${x.fans} fans · ${x.beatCoach}% beat the coach</span></span><span class="sc">${Math.round(x.avg)}</span></div>`).join('') + (me && !rows.some(x=>x.team===me) ? `<p class="hint">${esc(teamOf(me).nick)} need 3 fans this week to make the board.</p>`:'')
+      : `<p class="hint">No fan base has 3 players yet this week.${me?` Rally ${esc(teamOf(me).nick)} fans.`:''}</p>`; });
+}
+function cards(){ return store.get('crunchtime:cards')||[]; }
+function cardHtml(c){ const t=TEAMS[c.team]; return `<div class="ccard" style="background:linear-gradient(160deg,${t?t[1]:'#333'},${t?t[1]:'#333'} 55%,${t?t[2]:'#999'})"><span class="ck">CLUTCH CARD</span><b>${esc(c.name)}</b><small>${esc(c.desc)}<br>${esc(c.where)}</small></div>`; }
+function renderCards(){ const cs=cards(); $('cardBox').innerHTML = cs.length ? cs.slice().reverse().map(cardHtml).join('') : '<p class="hint">Pick the shooter. Hit a go-ahead shot late and win, and you earn his card.</p>'; }
+// a clutch shot = your chosen shooter scores to take the lead or tie in the last 24 seconds, and you win
+function clutchFrom(ev, snap, a){
+  if(!a || a.def || snap.t>24 || Engine.D(snap)>0) return null;
+  const hit=ev.find(e=>e.side==='us' && /\b(hits|drills)\b/.test(e.text||'')); if(!hit) return null;
+  const after=hit.us-hit.them; if(after<0) return null;
+  const nm=(hit.text.match(/^(.+?) (hits|drills)/)||[])[1]; if(!nm) return null;
+  const pid=Object.keys(G.g.players||{}).find(k=>G.g.players[k]===nm), full=(G.g.pstats&&pid&&G.g.pstats[pid]&&G.g.pstats[pid].n)||nm;
+  const kind=/three/.test(hit.text)?'three':'shot';
+  return {name:full, team:G.usAb, desc:`${after===0?'Tying':'Go-ahead'} ${kind} · ${fmt(hit.t)} left vs ${G.themAb}`, where:G.mode==='daily'?`Daily #${G.day}`:shortDate(G.g.date), id:G.g.id+'|'+full};
 }
 
 /* ---------- stats ---------- */
@@ -1937,6 +2075,7 @@ $('dayNo').textContent=`No. ${DAY} · ${new Date().toLocaleDateString('en-US',{m
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',async()=>{ await loadIndex(); renderArchive(); openSheet('archivePanel'); });
 $('simBtn').addEventListener('click',startSim);
+$('vsBtn').addEventListener('click',()=>{ $('vsBody').innerHTML='<button class="btn" id="vsCreate" type="button">Start a match</button>'; $('vsCreate').onclick=vsCreate; openSheet('vsPanel'); });
 $('liveBtn').addEventListener('click',()=>{ openSheet('livePanel'); renderLiveList(); pollLiveList(); });
 $('proBtn').addEventListener('click',()=>openPro());
 $('survBtn').addEventListener('click',async()=>{ if(SURV.active){ await loadIndex(); startReal('survival', await getEnding(SURV.active)); } else startSurvival(SURV.run===0); });
@@ -1947,7 +2086,7 @@ $('nameForm').addEventListener('submit',async e=>{
   if(r&&r.ok){ try{ localStorage.setItem('crunchtime:name',r.name); }catch(e){} $('nameMsg').textContent=`Saved. You'll show up as ${r.name} after 3 dailies.`; }
   else $('nameMsg').textContent = r&&r.error ? r.error : 'Could not reach the server. Try again later.';
 });
-$('statsBtn').addEventListener('click',()=>{ renderStats(); openSheet('statsPanel'); });
+$('statsBtn').addEventListener('click',()=>{ renderStats(); renderFans(); renderCards(); openSheet('statsPanel'); });
 $('howBtn').addEventListener('click',()=>openSheet('howPanel'));
 
 // iPhone Safari visitors get a link to the App Store app (only once the app is live).
@@ -1972,7 +2111,7 @@ function placeAd(where, slot){ if(!ADSENSE||NATIVE||!slot) return; const el=$(wh
 track('visit');
 proBadge(); claimPro();
 pollLiveList(); setInterval(pollLiveList, 60000);
-{ const q=new URLSearchParams(location.search); if(q.get('live')) setTimeout(()=>startLive(q.get('live'), q.get('replay')==='1'), 900); }
+{ const q=new URLSearchParams(location.search); if(q.get('room')) setTimeout(()=>{ history.replaceState(null,'',location.pathname); vsJoin(q.get('room')); }, 900); if(q.get('live')) setTimeout(()=>startLive(q.get('live'), q.get('replay')==='1'), 900); }
 try{ if(!localStorage.getItem('crunchtime:welcomed') && !CHALLENGE){ localStorage.setItem('crunchtime:welcomed','1'); setTimeout(()=>openSheet('welcome'),600); } }catch(e){}
 playDaily();
 </script>

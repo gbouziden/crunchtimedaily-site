@@ -24,6 +24,7 @@ footer{margin-top:40px;border-top:1px solid var(--line);padding-top:12px;font-si
 <div class="tiles" id="tiles"></div>
 <h2>How everyone scored</h2><div class="bars" id="bars"></div><div class="axis"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span></div>
 <h2>Top ten</h2><ol class="top" id="top"></ol>
+<h2>Fan leagues · this week</h2><ol class="top" id="fans"></ol><p class="muted">Pick your team in the game's Stats. Fan bases need 3 players this week to rank.</p>
 <h2>#FindPhil</h2><p id="phil">Nobody has found Phil Jackson yet.</p><p class="muted">Phil shows up for a perfect 100 on a daily with five or more calls, every one of them the single best option.</p>
 <a class="cta" href="/">Play today's ending</a>
 <script>
@@ -40,6 +41,7 @@ async function load(d){
   document.getElementById('prev').disabled=day<=1; document.getElementById('next').disabled=day>=maxDay;
 }
 document.getElementById('prev').onclick=()=>load(day-1); document.getElementById('next').onclick=()=>load(day+1);
+fetch('https://chartread.onrender.com/api/ct/fans').then(r=>r.json()).then(j=>{ document.getElementById('fans').innerHTML=(j.rows||[]).slice(0,10).map(x=>`<li><span>${x.team} fans · ${x.fans} players · ${x.beatCoach}% beat the coach</span><b>${Math.round(x.avg)}</b></li>`).join('')||'<li>No fan base has 3 players yet this week.</li>'; }).catch(()=>{});
 load(0).catch(()=>{ document.getElementById('tiles').innerHTML='<p>Stats are loading slowly. Try again in a minute.</p>'; });
 </script>
 <footer>Crunch Time Daily is an independent, fan-made game. It is not affiliated with, endorsed by, or sponsored by the NBA, its teams, or its players. Team and player names are used only to identify real games. Play-by-play facts from Basketball-Reference.com, rewritten in our own words.</footer></main></body></html>
