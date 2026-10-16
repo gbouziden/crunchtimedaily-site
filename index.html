@@ -780,7 +780,7 @@ async function api(path, body){
 }
 // Usage counter: anonymous event + the same random id. No cookies, nothing personal.
 function track(ev, mode){
-  if(!PID) return;
+  if(!PID || NATIVE) return;   // the iPhone app doesn't send usage events (keeps its App Store privacy label exact)
   let ref=''; try{ const h=document.referrer?new URL(document.referrer).hostname:''; if(h && !/crunchtimedaily\.com$/.test(h)) ref=h.replace(/^www\./,''); }catch(e){}
   try{ fetch(API+'/event',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:PID,ev,mode:mode||'',src:NATIVE?'app':'web',ref})}).catch(()=>{}); }catch(e){}
 }
