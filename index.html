@@ -329,6 +329,14 @@ dialog.sheet:not([open]){display:none!important}
 body.cb-shake .wrap{animation:cbShake .35s}
 @keyframes cbShake{20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
 @media (prefers-reduced-motion: reduce){.cb-headline.show div,.cb-stamp.show{animation:none;opacity:1;transform:none}.cb-stamp.show{transform:translate(-50%,-50%) rotate(-9deg)}.board.cb-flash,body.cb-shake .wrap,.cb-ticker span{animation:none}}
+.chip.live{color:var(--muted)}
+.chip.live.on{color:#fff;background:#CF3A3A;border-color:#CF3A3A;animation:livePulse 1.6s ease-in-out infinite}
+@keyframes livePulse{50%{box-shadow:0 0 0 6px rgba(207,58,58,.25)}}
+.lg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.lg b{font-family:var(--f-display);font-size:20px}.lg small{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.lg .tag{font-family:var(--f-mono);font-size:11px;font-weight:700;color:#fff;background:#CF3A3A;border-radius:4px;padding:2px 6px}
+.livebar{border:1.5px solid #CF3A3A;border-radius:8px;padding:8px 12px;font-size:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.livebar b{color:#CF3A3A;font-family:var(--f-mono);letter-spacing:.1em}
 .foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .foot a{color:inherit}
  @media (min-width:1000px){
@@ -353,6 +361,7 @@ body.cb-shake .wrap{animation:cbShake .35s}
     <div class="top-meta">
       <button class="chip solid" id="dailyBtn" type="button">Daily</button>
       <button class="chip" id="archiveBtn" type="button">Archive</button>
+      <button class="chip live" id="liveBtn" type="button">● Live</button>
       <button class="chip" id="survBtn" type="button">Survival</button>
       <button class="chip" id="simBtn" type="button">Free play</button>
       <button class="chip" id="statsBtn" type="button">Stats</button>
@@ -361,6 +370,11 @@ body.cb-shake .wrap{animation:cbShake .35s}
     </div>
   </header>
 
+  <dialog class="sheet panel" id="livePanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
+    <h3>Crunch Time Live</h3>
+    <p class="hint">When a real NBA game is within 5 points in the last two minutes, call the next possession before it happens. Then see what the real coach did.</p>
+    <div class="games" id="liveList"><p class="hint">Checking tonight's games…</p></div>
+  </dialog>
   <dialog class="sheet panel" id="welcome"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
     <h3>Welcome to Crunch Time</h3>
     <div class="steps"><div><b>1</b><span><strong>Make the call.</strong> A real NBA game, the last minute, real players on the floor. Pick the play and who shoots.</span></div>
@@ -836,6 +850,7 @@ function openSheet(id){ document.querySelectorAll('dialog.sheet[open]').forEach(
 function closeSheet(id){ const d=$(id); if(d&&d.open) d.close(); }
 document.addEventListener('click',e=>{ if(e.target.closest('[data-close]')) e.target.closest('dialog').close(); else if(e.target.tagName==='DIALOG') e.target.close(); });
 function setMode(m){
+  if(m!=='live' && LIVE.timer){ clearInterval(LIVE.timer); LIVE.timer=null; }
   $('dailyBtn').classList.toggle('solid',m==='daily');
   $('survBtn').classList.toggle('solid',m==='survival');
   $('archiveBtn').classList.toggle('solid',m==='archive');
@@ -1050,7 +1065,7 @@ function renderPanel(k){
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${G.themAb} ${Engine.D(s)<0?'lead':Engine.D(s)>0?'trail':'are tied'}; expect them to play the clock that way.</span></div>`;
   }
   if(k==='off' && s.lu&&s.lu.us&&s.lu.us.p) wireWho(s);
-  $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : callSim(k));
+  $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : G.kind==='live' ? callLive(k) : callSim(k));
 }
 // Pick the shooter from the real five. The default follows the play: best shooter for a spot-up three,
 // top scorer for an isolation or pick-and-roll, the best driver for a rim attack.
@@ -1635,6 +1650,132 @@ const Buzzer = (() => {
   return {play, tierOf, clearTicker};
 })();
 
+/* ---------- Crunch Time Live ---------- */
+// Real games in the final two minutes, from ESPN's public feed via our backend. You lock a call for the
+// side you coach before the possession plays out; when it ends we read what the real coach did.
+const LIVE = { games:[], timer:null, replay:null };
+let LIVE_TEAMS=null;
+async function liveTeams(){ if(!LIVE_TEAMS){ try{ LIVE_TEAMS=await (await fetch(DATA_BASE+'teams.json?v='+DATA_V)).json(); }catch(e){ LIVE_TEAMS={teams:{}}; } } return LIVE_TEAMS; }
+async function pollLiveList(){
+  const r=await api('/live'); if(!r||!r.games) return;
+  LIVE.games=r.games; $('liveBtn').classList.toggle('on', !!r.anyCrunch);
+  if($('livePanel').open) renderLiveList();
+}
+function renderLiveList(){
+  const L=$('liveList'), gs=LIVE.games;
+  if(!gs.length){ L.innerHTML='<p class="hint">No NBA games today. Live lights up during close finishes.</p>'; return; }
+  L.innerHTML=gs.map(g=>{ const st=g.state==='in'?`Q${g.period>4?'OT':g.period} · ${fmt(g.clock)}`:g.state==='post'?'Final':new Date(g.start).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    return `<div class="lg"><span><b>${esc(g.away.abbr)} ${g.away.score} · ${esc(g.home.abbr)} ${g.home.score}</b><small>${esc(st)}${g.crunch?' · in crunch time':''}</small></span>
+      ${g.crunch?`<button class="btn" type="button" data-live="${g.id}">Call it</button>`:g.state==='in'?'<span class="hint">Not close or not late yet</span>':''}</div>`; }).join('');
+  L.querySelectorAll('[data-live]').forEach(b=>b.addEventListener('click',()=>startLive(b.dataset.live)));
+}
+// possession and actions from ESPN play text
+function liveInfer(plays, teams){
+  const abbrs=Object.values(teams).map(t=>t.abbr), other=a=>abbrs.find(x=>x!==a);
+  let poss=null;
+  for(const p of plays){ const ty=(p.type||'').toLowerCase(), tx=(p.text||'').toLowerCase(); if(!p.team) continue;
+    if(/rebound/.test(ty)) poss=p.team;
+    else if(/turnover/.test(ty)||/turnover|traveling|offensive foul|steal/.test(tx)) poss=/steal/.test(tx)&&!/turnover/.test(tx)?p.team:other(p.team);
+    else if(/free throw/.test(ty)||/free throw/.test(tx)){ const m=tx.match(/(\d) of (\d)/); if(m&&m[1]===m[2]&&/makes/.test(tx)) poss=other(p.team); else poss=p.team; }
+    else if(p.shooting && p.scoring) poss=other(p.team);
+    else if(p.shooting) poss=p.team;
+    else if(/foul/.test(ty)||/foul/.test(tx)) poss=other(p.team);
+  }
+  return poss;
+}
+function liveClassify(plays, side, them){ // the coach's real call on this possession, from what happened after you locked
+  for(const p of plays){ const tx=(p.text||'').toLowerCase(), ty=(p.type||'').toLowerCase();
+    if(p.team===side && /timeout/.test(tx)) continue;
+    if(p.team===them && /foul/.test(tx) && !/shooting/.test(tx)) return {def:'foul', who:'them'};
+    if(p.team===side && p.shooting){ const play=/three point/.test(tx)?'three':/layup|dunk|tip|hook|alley/.test(tx)?'rim':'iso'; return {play, tempo:'normal'}; }
+    if(p.team===side && /turnover/.test(ty+tx)) return {play:'pnr', tempo:'normal'};
+    if(p.team===them && /turnover/.test(ty+tx)) return {def:'straight'};
+    if(p.team===them && p.shooting) return {def:'straight'};
+  }
+  return null;
+}
+async function startLive(eid, replay){
+  closeSheet('livePanel'); await liveTeams();
+  const r=await api(`/live/${eid}${replay?'?all=1':''}`); if(!r||!r.teams){ alert('Could not load that game.'); return; }
+  const ESPN_AB={NY:'NYK',GS:'GSW',SA:'SAS',NO:'NOP',UTAH:'UTA',WSH:'WAS',PHO:'PHX'};
+  Object.values(r.teams).forEach(x=>{ x.espn=x.abbr; x.abbr=ESPN_AB[x.abbr]||x.abbr; });
+  r.plays.forEach(p=>{ if(p.team) p.team=ESPN_AB[p.team]||p.team; });
+  const tms=Object.values(r.teams), home=tms.find(t=>t.side==='home')||tms[0], away=tms.find(t=>t.side==='away')||tms[1];
+  let plays=r.plays;
+  if(replay){ // start the replay at the first crunch-time moment
+    const k=plays.findIndex(p=>p.period>=4 && p.t<=120 && Math.abs((p.home||0)-(p.away||0))<=5); LIVE.replay={all:plays, i:Math.max(0,k)}; plays=plays.slice(0,LIVE.replay.i+1);
+  } else LIVE.replay=null;
+  const lastP=plays[plays.length-1]||{home:home.score,away:away.score,t:r.clock};
+  const margin=(lastP.home||0)-(lastP.away||0), mine = margin>0 ? away : home;   // coach the trailing team by default
+  const opp = mine===home?away:home;
+  const T=LIVE_TEAMS.teams||{}, rate=n=>T[n]?{f2:T[n].f2,f3:T[n].f3,ft:T[n].ft}:{f2:1,f3:1,ft:.78};
+  G={kind:'live', mode:'live', eid, plays, teams:r.teams, mine, opp, usAb:mine.abbr, themAb:opp.abbr, startTo:2, decisions:[], busy:false, pending:null, tally:[],
+     g:{id:'live-'+eid, usFull:mine.name, themFull:opp.name, rates:{us:rate(mine.name), them:rate(opp.name)}}};
+  resetView(); setMode('live');
+  $('matchup').textContent=`LIVE · ${away.name} at ${home.name}`;
+  pushEvents([{t:lastP.t||0,side:'',text:`Crunch Time Live: you're coaching the ${mine.name}. Lock your call before the possession plays out.`,us:0,them:0,cls:'note'}],true);
+  liveRefresh(true);
+  clearInterval(LIVE.timer); LIVE.timer=setInterval(()=>liveTick(), replay?(FAST?150:1600):5000);
+}
+function liveState(){
+  const lp=G.plays[G.plays.length-1]||{}; const mineHome=G.mine.side==='home';
+  const us=mineHome?lp.home:lp.away, them=mineHome?lp.away:lp.home;
+  const possAb=liveInfer(G.plays, G.teams);
+  return {us:us||0, them:them||0, t:lp.t||0, sc:24, poss: possAb===G.mine.abbr?'us':'them', toUs:1, over:false, r:G.g.rates, period:lp.period||4};
+}
+function liveRefresh(first){
+  const s=liveState(); G.s=s; renderBoard(); Court.setOffense(s.poss);
+  const ended = G.plays.some(p=>/end of game/i.test(p.text));
+  $('sitHead').textContent = ended ? 'Final' : `${sitWords(s)}, ${s.poss==='us'?'your':'their'} ball, ${fmt(s.t)}`;
+  if(ended){ finishLive(); return; }
+  if(!G.pending && !G.busy && !G.reveal){ $('sitNote').textContent='Lock your call for this possession.'; renderPanel(s.poss==='us'?'off':'def'); }
+}
+async function liveTick(){
+  let fresh=[];
+  if(LIVE.replay){ const R=LIVE.replay; if(R.i>=R.all.length-1){ clearInterval(LIVE.timer); } R.i++; G.plays=R.all.slice(0,R.i+1); fresh=[G.plays[G.plays.length-1]]; }
+  else { const r=await api(`/live/${G.eid}`); if(!r||!r.plays) return; const known=new Set(G.plays.map(p=>p.id)); fresh=r.plays.filter(p=>!known.has(p.id)); if(!fresh.length) return; G.plays=G.plays.concat(fresh); }
+  const mineHome=G.mine.side==='home';
+  await pushEvents(fresh.filter(p=>p.type!=='Substitution').map(p=>({t:p.t, side:p.team===G.mine.abbr?'us':'them', text:p.text, us:mineHome?p.home:p.away, them:mineHome?p.away:p.home, cls:p.scoring?'big':''})), true);
+  // resolve a locked call once its possession is over
+  if(G.pending){ const P=G.pending, after=G.plays.slice(P.lockIdx+1), s=liveState();
+    const done = s.poss!==P.snap.poss || s.us!==P.snap.us || s.them!==P.snap.them || G.plays.some(p=>/end of (game|the 4th|overtime)/i.test(p.text)&&G.plays.indexOf(p)>P.lockIdx);
+    if(done) resolveLive(P, after); }
+  if(!G.pending && !G.reveal) liveRefresh();
+  else { const s=liveState(); G.s=s; renderBoard(); }
+}
+async function callLive(k){
+  if(G.busy||G.pending) return; G.busy=true; lockPanel('Grading…'); await new Promise(r=>setTimeout(r,30));
+  const snap={...G.s}, a=readAction(k);
+  const d=grade(snap,a,Engine.hash(G.eid,'live',G.plays.length),a);
+  G.pending={snap,a,d,lockIdx:G.plays.length-1}; G.busy=false;
+  $('panel').innerHTML=`<div class="reveal"><div class="livebar"><b>LOCKED</b><span>${esc(Engine.label(a))}</span><span class="hint">${pct(d.wp)} to win</span></div>
+    <p class="hint">Waiting for the real possession. Watch the play-by-play below.</p></div>`;
+}
+function resolveLive(P, after){
+  G.pending=null; G.reveal=true;
+  const real=liveClassify(after, G.mine.abbr, G.opp.abbr);
+  const ev=P.d.evals, byKey=Object.fromEntries(ev.map(e=>[e.key,e]));
+  let coachTxt='No clear call (time ran out or a dead ball)', cwp=null;
+  if(real){ const ca=real.def?{def:real.def}:{play:real.play,tempo:real.tempo,to:false}; const e=byKey[Engine.key(ca)]; if(e){ cwp=e.wp; coachTxt=Engine.label(ca); } }
+  const sq=square(P.d.best.wp-P.d.wp), csq=cwp!=null?square(P.d.best.wp-cwp):null;
+  G.decisions.push(P.d); G.tally.push({sq, csq});
+  const lastLines=after.filter(p=>p.type!=='Substitution').slice(0,4).map(p=>`<li><span class="tt">${fmt(p.t)}</span>${esc(p.text)}</li>`).join('');
+  $('panel').innerHTML=`<div class="reveal"><div class="rv-head"><i class="sq ${sq}"></i><b>${SQWORD[sq]}</b></div>
+    <div class="rv-rows"><div class="rv me"><span class="who">You</span><span class="what">${esc(Engine.label(P.a))}</span><span class="wp">${pct(P.d.wp)}</span></div>
+    <div class="rv"><span class="who">Real coach</span><span class="what">${esc(coachTxt)}</span><span class="wp">${cwp!=null?pct(cwp):'–'}</span></div>
+    ${Engine.key(P.a)===P.d.best.key?'':`<div class="rv"><span class="who">Best</span><span class="what">${esc(Engine.label(P.d.best.a))}</span><span class="wp">${pct(P.d.best.wp)}</span></div>`}</div>
+    <div class="happened"><div class="hd">What really happened</div><ul>${lastLines}</ul></div>
+    <div class="call"><button class="btn" id="liveNext" type="button">Next possession</button><span class="hint">Live: ${G.tally.filter(x=>x.sq==='g').length} best calls of ${G.tally.length}</span></div></div>`;
+  $('liveNext').addEventListener('click',()=>{ G.reveal=false; liveRefresh(); });
+}
+function finishLive(){
+  clearInterval(LIVE.timer); $('panel').hidden=false;
+  const g=G.tally, best=g.filter(x=>x.sq==='g').length, coachBest=g.filter(x=>x.csq==='g').length;
+  const grid=g.map(x=>EMOJI[x.sq]).join(''), txt=`Crunch Time LIVE 🔴🏀\n${G.mine.abbr} vs ${G.opp.abbr}: ${best} best calls of ${g.length}${g.length?` (real coach: ${coachBest})`:''}\n${grid}\nhttps://crunchtimedaily.com`;
+  $('panel').innerHTML=`<div class="reveal"><div class="rv-head"><b>Final</b></div><p>You called ${g.length} live possession${g.length===1?'':'s'}: <b>${best}</b> best call${best===1?'':'s'}. The real coach had ${coachBest}.</p><div class="grid-emoji">${grid||'–'}</div>
+    <textarea class="share-box" rows="4" readonly>${txt}</textarea><div class="call"><button class="btn ghost" type="button" onclick="openSheet('livePanel');pollLiveList()">Other live games</button></div></div>`;
+}
+
 /* ---------- pro ---------- */
 // In the iPhone app everything is unlocked (no web checkout inside the app, per App Store rules).
 const isPro = () => { if(NATIVE) return true; try{ return !!localStorage.getItem('crunchtime:pro'); }catch(e){ return false; } };
@@ -1742,12 +1883,14 @@ function renderArchive(){
   const words = x => x[0]===0?'Tied':x[0]>0?`Up ${x[0]}`:`Down ${-x[0]}`;
   const row = it => { const g=INDEX.games[it.id], sv=it.day?store.get(SAVE_KEY(it.day)):null, locked=!pro && !it.free;
     return `<button class="game${locked?' locked':''}" type="button" data-id="${it.id}" data-locked="${locked?1:''}"><span><span class="gt">${it.classic?esc(it.tag):`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))}`}</span><br><span class="gd">${it.classic?`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))} · `:''}${esc(shortDate(g.d))} · ${KIND[g.k]||''} · ${words(g.x)}, ${fmt(g.x[1])}</span></span><span class="gs">${locked?'<span class="lock">PRO</span>':it.classic?'':esc(it.tag)}${sv?` · ${sv.score}`:''}</span></button>`; };
-  L.innerHTML = (classics.length?`<div class="sec">Greatest Endings</div>${classics.map(row).join('')}`:'')
+  const fresh=Object.keys(INDEX.games).filter(id=>INDEX.games[id].f && (Date.now()-Date.parse(INDEX.games[id].f))<4*864e5).sort((a,b)=>INDEX.games[b].f.localeCompare(INDEX.games[a].f)).map(id=>({id, tag:'Last night', free:true}));
+  L.innerHTML = (fresh.length?`<div class="sec">Last night's finishes</div>${fresh.map(row).join('')}`:'') + (classics.length?`<div class="sec">Greatest Endings</div>${classics.map(row).join('')}`:'')
     + `<div class="sec">Past dailies</div>${past.length?past.map(row).join(''):'<p class="hint">Daily #1 is today. Past dailies show up here.</p>'}`
     + `<div class="sec">Playoff classics & practice</div>${prac.map(row).join('')}`;
   L.querySelectorAll('.game').forEach(b=>b.addEventListener('click',async()=>{ if(b.dataset.locked){ openPro('That ending is part of Pro.'); return; } startReal('archive',await getEnding(b.dataset.id)); }));
 }
 
+const DEEP_ENDING = (()=>{ const e=new URLSearchParams(location.search).get('e'); return e&&/^[0-9]{9}[A-Z]{3}(-L)?$/.test(e)?e:null; })();
 const CHALLENGE = (()=>{ const q=new URLSearchParams(location.search), c=+q.get('c'), g=(q.get('g')||'').replace(/[^A-Za-z0-9]/g,'').slice(0,12); return (c||g)? {day:c||null, score:+q.get('s')||null, name:(q.get('n')||'').slice(0,18), ghost:g||null} : null; })();
 // ---- Ghost mode: play a daily against a friend's recorded calls ----
 let GHOST=null;
@@ -1770,6 +1913,7 @@ async function saveGhost(data){
   if(r&&r.id){ data.ghostId=r.id; store.set(SAVE_KEY(data.day),data); const sb=$('shareBox'); if(sb) sb.value=shareText(data); }
 }
 async function playDaily(){ await loadIndex();
+  if(DEEP_ENDING && INDEX.games[DEEP_ENDING]){ history.replaceState(null,'',location.pathname); await startReal('archive', await getEnding(DEEP_ENDING)); return; }
   if(CHALLENGE && CHALLENGE.ghost){
     const gh=await api('/ghost/'+CHALLENGE.ghost);
     history.replaceState(null,'',location.pathname);
@@ -1793,6 +1937,7 @@ $('dayNo').textContent=`No. ${DAY} · ${new Date().toLocaleDateString('en-US',{m
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',async()=>{ await loadIndex(); renderArchive(); openSheet('archivePanel'); });
 $('simBtn').addEventListener('click',startSim);
+$('liveBtn').addEventListener('click',()=>{ openSheet('livePanel'); renderLiveList(); pollLiveList(); });
 $('proBtn').addEventListener('click',()=>openPro());
 $('survBtn').addEventListener('click',async()=>{ if(SURV.active){ await loadIndex(); startReal('survival', await getEnding(SURV.active)); } else startSurvival(SURV.run===0); });
 $('nameForm').addEventListener('submit',async e=>{
@@ -1826,6 +1971,8 @@ function placeAd(where, slot){ if(!ADSENSE||NATIVE||!slot) return; const el=$(wh
 }catch(e){} })();
 track('visit');
 proBadge(); claimPro();
+pollLiveList(); setInterval(pollLiveList, 60000);
+{ const q=new URLSearchParams(location.search); if(q.get('live')) setTimeout(()=>startLive(q.get('live'), q.get('replay')==='1'), 900); }
 try{ if(!localStorage.getItem('crunchtime:welcomed') && !CHALLENGE){ localStorage.setItem('crunchtime:welcomed','1'); setTimeout(()=>openSheet('welcome'),600); } }catch(e){}
 playDaily();
 </script>
