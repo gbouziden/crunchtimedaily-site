@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Celebration demo · Crunch Time</title>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0E1114;--panel:#171B20;--ink:#E9ECEF;--muted:#9AA3AD;--line:#2B3139;--accent:#FF6B33;--led:#FFB21E;--red:#FF4433;--good:#2F9A5A;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Archivo,system-ui,sans-serif;min-height:100vh}
+main{max-width:520px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:14px}
+h1{font:900 30px "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase;margin:0}
+.hint{color:var(--muted);font-size:13px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns button{font:700 14px Archivo,sans-serif;padding:10px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.btns button:active{transform:scale(.98)}
+.stage{position:relative;border-radius:12px;overflow:hidden}
+.board{background:#050608;border-radius:10px;padding:12px;box-shadow:inset 0 0 0 2px #1E2228;font-variant-numeric:tabular-nums;position:relative;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+.badge{border-radius:6px;padding:4px 6px;font:800 20px "Big Shoulders Display",sans-serif;text-transform:uppercase;color:#fff}
+.score{font:800 64px "Big Shoulders Display",sans-serif;line-height:1;color:var(--led);text-shadow:0 0 14px rgba(255,178,30,.35)}
+.clock{font:800 40px "Big Shoulders Display",sans-serif;color:var(--red);text-shadow:0 0 14px rgba(255,68,51,.35)}
+.qtr{font:600 11px "IBM Plex Mono",monospace;letter-spacing:.16em;color:#C9CED4}
+.ticker{margin-top:10px;height:22px;overflow:hidden;border-top:1px solid #1E2228;padding-top:6px;font:600 12px "IBM Plex Mono",monospace;letter-spacing:.12em;color:var(--led);white-space:nowrap;opacity:0}
+.ticker span{display:inline-block;padding-left:100%;animation:none}
+.flash{animation:flash .18s steps(2) 6}
+@keyframes flash{50%{filter:brightness(2.2) saturate(1.4);box-shadow:inset 0 0 0 3px var(--led),0 0 30px rgba(255,178,30,.5)}}
+.court{display:block;width:100%;height:auto;margin-top:10px;border-radius:10px}
+.c-floor{fill:#8E6A43}.c-lines{stroke:rgba(255,255,255,.7);stroke-width:2.5;fill:none}
+#ball{transition:transform .55s cubic-bezier(.35,.0,.55,1)}
+.net{transform-origin:250px 52px}
+.net.swish{animation:swish .5s ease-out}
+@keyframes swish{30%{transform:scaleY(1.45)}60%{transform:scaleY(.85)}}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:50}
+.headline{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:60}
+.headline::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(5,6,8,.78) 0%,rgba(5,6,8,.55) 45%,rgba(5,6,8,0) 75%);opacity:0;transition:opacity .25s ease}
+.headline.show::before{opacity:1}
+.headline div{position:relative}
+.headline div{text-align:center;opacity:0;transform:scale(2.6) rotate(-4deg)}
+.headline div.in{animation:slam .55s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes slam{0%{opacity:0;transform:scale(2.6) rotate(-4deg)}60%{opacity:1;transform:scale(.94) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.headline b{display:block;font:900 clamp(54px,16vw,96px) "Big Shoulders Display",Impact,sans-serif;line-height:.86;text-transform:uppercase;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 40px rgba(0,0,0,.5);-webkit-text-stroke:2px rgba(0,0,0,.25)}
+.headline small{display:block;margin-top:8px;font:700 16px Archivo,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.7)}
+.headline.out div{transition:opacity .6s ease .1s,transform .6s ease;opacity:0!important;transform:translateY(-30px)!important}
+.stamp{position:fixed;left:50%;top:42%;z-index:60;pointer-events:none;transform:translate(-50%,-50%) rotate(-9deg) scale(3);opacity:0;border:5px solid var(--accent);color:var(--accent);border-radius:10px;padding:6px 16px;font:900 clamp(30px,9vw,52px) "Big Shoulders Display",sans-serif;text-transform:uppercase;letter-spacing:.04em;background:rgba(14,17,20,.6)}
+.stamp.in{animation:stamp .45s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-9deg) scale(3)}70%{opacity:1;transform:translate(-50%,-50%) rotate(-9deg) scale(.92)}100%{opacity:1;transform:translate(-50%,-50%) rotate(-9deg) scale(1)}}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
+.zen{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(5,6,8,0);pointer-events:none;transition:background 1.2s ease}
+.zen.on{background:rgba(5,6,8,.82)}
+.zen div{text-align:center;opacity:0;transition:opacity 1.4s ease .6s}
+.zen.on div{opacity:1}
+.zen .om{font-size:84px;display:block;animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.08)}}
+.zen b{display:block;font:900 40px "Big Shoulders Display",sans-serif;text-transform:uppercase;color:var(--led)}
+.zen small{color:#C9CED4}
+@media (prefers-reduced-motion: reduce){.flash,.shake,.headline div.in,.stamp.in{animation:none!important;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>The Buzzer · demo</h1>
+  <p class="hint">Preview of the end-of-game celebration. Tap a scenario. On the real site it plays once when your game ends, right before the results.</p>
+  <div class="btns">
+    <button id="b1" type="button">1 · You win</button>
+    <button id="b2" type="button">2 · Win, changed history</button>
+    <button id="b3" type="button">3 · Lost, but outcoached</button>
+    <button id="b4" type="button">4 · Found Phil (perfect)</button>
+  </div>
+  <div class="stage" id="stage">
+    <div class="board" id="board">
+      <div class="row">
+        <div><div class="badge" style="background:#CE1141;box-shadow:inset 0 -3px 0 #000">Raptors</div><div class="score" id="sUs">85</div></div>
+        <div><div class="qtr" id="qtr">4TH QTR</div><div class="clock" id="clk">0:02.1</div></div>
+        <div><div class="badge" style="background:#006BB6;box-shadow:inset 0 -3px 0 #ED174C">76ers</div><div class="score" id="sThem">85</div></div>
+      </div>
+      <div class="ticker" id="ticker"><span id="tickTxt"></span></div>
+    </div>
+    <svg class="court" viewBox="0 0 500 300" aria-hidden="true">
+      <rect width="500" height="300" rx="10" class="c-floor"/>
+      <g class="c-lines"><rect x="10" y="10" width="480" height="280" rx="6"/><rect x="190" y="10" width="120" height="190"/><circle cx="250" cy="200" r="60"/><path d="M 30 10 L 30 105 A 237 237 0 0 0 470 105 L 470 10"/><line x1="225" y1="38" x2="275" y2="38"/></g>
+      <g class="net" id="net"><path d="M241 52 L245 72 M250 52 L250 74 M259 52 L255 72 M243 60 L257 60 M244 67 L256 67" stroke="#fff" stroke-width="1.6" opacity=".85"/></g>
+      <circle cx="250" cy="52" r="10" fill="none" stroke="#FF4433" stroke-width="4"/>
+      <g id="ball" style="transform:translate(118px,214px)"><circle r="8" fill="#E8711C" stroke="#2a1404" stroke-width="1.5"/></g>
+    </svg>
+  </div>
+  <p class="hint">Respects "reduce motion." Silent. The app adds a phone buzz on the win.</p>
+</main>
+<canvas id="cf"></canvas>
+<div class="headline" id="hl"><div><b id="hlB">YOU WIN</b><small id="hlS"></small></div></div>
+<div class="stamp" id="stamp">Outcoached Nurse</div>
+<div class="zen" id="zen"><div><span class="om">🧘</span><b>You found Phil Jackson</b><small>Five calls. Every one the single best option.</small></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// --- confetti (tiny canvas engine, team colors) ---
+const cv=$('cf'), cx=cv.getContext('2d'); let parts=[], raf=0;
+function size(){ cv.width=innerWidth*devicePixelRatio; cv.height=innerHeight*devicePixelRatio; }
+addEventListener('resize',size); size();
+function burst(colors, n=180){
+  if(reduce) return;
+  const W=cv.width, H=cv.height, dpr=devicePixelRatio;
+  for(let side of [0,1]) for(let i=0;i<n/2;i++){
+    const a=(side? Math.PI*1.08 : -Math.PI*.08) + (Math.random()-.5)*.9 - (side?0:0), sp=(9+Math.random()*9)*dpr;
+    parts.push({x:side?W+10:-10, y:H*.62, vx:Math.cos(a)*sp*(side?1:1), vy:-Math.abs(Math.sin(a))*sp-6*dpr, w:(6+Math.random()*6)*dpr, h:(9+Math.random()*8)*dpr,
+      r:Math.random()*6, vr:(Math.random()-.5)*.35, c:colors[(Math.random()*colors.length)|0], life:0});
+  }
+  if(!raf) tick();
+}
+function tick(){
+  const dpr=devicePixelRatio; cx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(p=>p.life<260 && p.y<cv.height+40);
+  for(const p of parts){ p.life++; p.vy+=.32*dpr; p.vx*=.992; p.vy*=.995; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+    cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.scale(1,Math.cos(p.life*.18)); cx.fillStyle=p.c; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore(); }
+  raf = parts.length ? requestAnimationFrame(tick) : 0;
+}
+// --- pieces ---
+function reset(){ $('sUs').textContent='85'; $('sThem').textContent='85'; $('clk').textContent='0:02.1'; $('qtr').textContent='4TH QTR';
+  $('ball').style.transition='none'; $('ball').style.transform='translate(118px,214px)'; void $('ball').offsetWidth; $('ball').style.transition='';
+  $('ticker').style.opacity=0; $('tickTxt').style.animation='none'; $('hl').classList.remove('out','show'); $('hl').firstElementChild.classList.remove('in'); $('stamp').classList.remove('in'); $('zen').classList.remove('on'); }
+async function runClock(){ for(let t=2.1;t>0.05;t-=0.1){ $('clk').textContent='0:0'+t.toFixed(1); await sleep(reduce?0:40);} $('clk').textContent='0:00.0'; $('qtr').textContent='FINAL'; }
+async function swish(){ $('ball').style.transform='translate(250px,40px)'; await sleep(reduce?0:330); $('ball').style.transform='translate(250px,60px)'; $('net').classList.remove('swish'); void $('net').offsetWidth; $('net').classList.add('swish'); await sleep(reduce?0:250); }
+async function headline(big, small, color){ $('hlB').textContent=big; $('hlB').style.color=color||'#fff'; $('hlS').textContent=small||''; const d=$('hl').firstElementChild; $('hl').classList.add('show'); d.classList.remove('in'); void d.offsetWidth; d.classList.add('in'); document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake'); await sleep(2300); $('hl').classList.add('out'); $('hl').classList.remove('show'); }
+function flashBoard(){ const b=$('board'); b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash'); }
+let busy=false;
+async function play(kind){
+  if(busy) return; busy=true; reset(); await sleep(150);
+  const team=['#CE1141','#000000','#FFFFFF','#A1A1A4'], gold=['#FFB21E','#FFD66B','#FFF3C4','#CE1141','#FFFFFF'];
+  if(kind===1||kind===2){
+    const clk=runClock(); await sleep(reduce?0:420); await swish(); $('sUs').textContent='87'; await clk; flashBoard();
+    if(kind===2){ $('tickTxt').textContent='HISTORY CHANGED · THE REAL RAPTORS LOST 85–87 · YOU WON 87–85 · HISTORY CHANGED ·'; $('ticker').style.opacity=1; $('tickTxt').style.animation='marq 7s linear infinite'; }
+    burst(kind===2?gold:team, kind===2?260:180); if(kind===2) setTimeout(()=>burst(gold,140),650);
+    await headline('You win 87–85', kind===2?'The real Raptors lost this one. You changed history.':'Raptors win. Better than 85% of NBA coaches.', kind===2?'#FFB21E':'#fff');
+  } else if(kind===3){
+    await runClock(); $('sThem').textContent='87'; flashBoard(); await sleep(reduce?0:300);
+    const s=$('stamp'); s.classList.remove('in'); void s.offsetWidth; s.classList.add('in'); document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
+    await sleep(2200); s.classList.remove('in');
+  } else {
+    await runClock(); $('zen').classList.add('on'); await sleep(3600); $('zen').classList.remove('on');
+  }
+  busy=false;
+}
+const st=document.createElement('style'); st.textContent='@keyframes marq{to{transform:translateX(-100%)}}'; document.head.appendChild(st);
+$('b1').onclick=()=>play(1); $('b2').onclick=()=>play(2); $('b3').onclick=()=>play(3); $('b4').onclick=()=>play(4);
+</script>
+</body>
+</html>
