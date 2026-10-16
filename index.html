@@ -359,6 +359,11 @@ body.cb-shake .wrap{animation:cbShake .35s}
   .wrap>.situation{grid-row:3}.wrap>#panel{grid-row:4 / span 3}.wrap>#result{grid-row:4 / span 3}
   .wrap>.board{grid-row:3}.wrap>.court-wrap{grid-row:4}.wrap>.realstrip{grid-row:5}.wrap>.pbp{grid-row:6}
 }
+@media (max-width:600px){.top{gap:8px;padding-bottom:8px}.top>div:first-child{width:100%}.brand{font-size:40px}.tag{font-size:12px;margin-top:4px}
+  .top-meta{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.top-meta::-webkit-scrollbar{display:none}.chip{flex:0 0 auto}
+  .intro{gap:5px}.ig-big{font-size:46px}.ig-q{font-size:15px}
+  #introGo{position:sticky;bottom:12px;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.35)}}
+.res-team{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0}
 @media (max-width:420px){.top-meta{gap:6px}.chip{font-size:11px;padding:6px 7px;letter-spacing:.03em}.opts{grid-template-columns:1fr}.ev{grid-template-columns:48px 1fr auto}.rv{grid-template-columns:80px 1fr auto}}
 </style>
 </head>
@@ -863,9 +868,10 @@ async function api(path, body){
   catch(e){ return null; } finally{ clearTimeout(t); }
 }
 // Usage counter: anonymous event + the same random id. No cookies, nothing personal.
+const SRC_TAG = (()=>{ try{ return (new URLSearchParams(location.search).get('s')||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,40); }catch(e){ return ''; } })();   // ?s=xpoll etc. tags a link's channel
 function track(ev, mode){
   if(!PID || NATIVE) return;   // the iPhone app doesn't send usage events (keeps its App Store privacy label exact)
-  let ref=''; try{ const h=document.referrer?new URL(document.referrer).hostname:''; if(h && !/crunchtimedaily\.com$/.test(h)) ref=h.replace(/^www\./,''); }catch(e){}
+  let ref=SRC_TAG?'tag-'+SRC_TAG:''; if(!ref) try{ const h=document.referrer?new URL(document.referrer).hostname:''; if(h && !/crunchtimedaily\.com$/.test(h)) ref=h.replace(/^www\./,''); }catch(e){}
   try{ fetch(API+'/event',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:PID,ev,mode:mode||'',src:NATIVE?'app':'web',ref})}).catch(()=>{}); }catch(e){}
 }
 function applyRank(d, st){
@@ -1298,7 +1304,7 @@ function renderIntro(st){
     <div class="ig-chips"><span class="ig-chip">${s.poss==='us'?'Your ball':'Their ball'}</span>${tos(s.toUs,'You')}${s.toThem!=null?tos(s.toThem,T.nick):''}</div>
     <p class="ig-q">You're coaching the ${esc(U.nick)}.${cn?` Can you do better than <b>${esc(cn)}</b> did?`:' Can you beat the real coach?'}</p>
     ${GHOST&&GHOST.run?`<div class="challenge">👻 You're playing <b>${esc(ghostName())}</b>'s ghost: ${/^(8|11|18)/.test(String(GHOST.run.score))?'an':'a'} <b>${GHOST.run.score}</b> grade, ${GHOST.run.won?'won':'lost'} ${GHOST.run.us}–${GHOST.run.them}. Their calls show after you make yours.</div>`:''}
-    <button class="btn" id="introGo" type="button">Take over</button>
+    <button class="btn" id="introGo" type="button">Take over ▸</button>
   </div>`;
   $('introGo').addEventListener('click',()=>{ G.introDone=true; document.querySelector('.court-wrap').hidden=false; $('situation').hidden=false; stepReal(); });
 }
@@ -1605,6 +1611,7 @@ function renderResult(d){
         ${r.same?'<div class="hint">You found the best call.</div>':`<div class="hint">Best: ${esc(r.best)} · ${pct(r.bestWp)}</div>`}
       </div></div>`).join('')}
     </div>
+    ${myTeam()?'':`<label class="teampick res-team">Rep your team in the fan leagues <select class="teamSel"><option value="">No team</option><option value="ATL">ATL</option><option value="BOS">BOS</option><option value="BKN">BKN</option><option value="CHA">CHA</option><option value="CHI">CHI</option><option value="CLE">CLE</option><option value="DAL">DAL</option><option value="DEN">DEN</option><option value="DET">DET</option><option value="GSW">GSW</option><option value="HOU">HOU</option><option value="IND">IND</option><option value="LAC">LAC</option><option value="LAL">LAL</option><option value="MEM">MEM</option><option value="MIA">MIA</option><option value="MIL">MIL</option><option value="MIN">MIN</option><option value="NOP">NOP</option><option value="NYK">NYK</option><option value="OKC">OKC</option><option value="ORL">ORL</option><option value="PHI">PHI</option><option value="PHX">PHX</option><option value="POR">POR</option><option value="SAC">SAC</option><option value="SAS">SAS</option><option value="TOR">TOR</option><option value="UTA">UTA</option><option value="WAS">WAS</option></select></label>`}
     <div id="adResult"></div>
     <textarea class="share-box" id="shareBox" rows="5" readonly aria-label="Share text"></textarea>
     <div class="call">
@@ -2115,7 +2122,7 @@ track('visit');
 proBadge(); claimPro();
 pollLiveList(); setInterval(pollLiveList, 60000);
 { const q=new URLSearchParams(location.search); if(q.get('room')) setTimeout(()=>{ history.replaceState(null,'',location.pathname); vsJoin(q.get('room')); }, 900); if(q.get('live')) setTimeout(()=>startLive(q.get('live'), q.get('replay')==='1'), 900); }
-try{ if(!localStorage.getItem('crunchtime:welcomed') && !CHALLENGE){ localStorage.setItem('crunchtime:welcomed','1'); setTimeout(()=>openSheet('welcome'),600); } }catch(e){}
+try{ localStorage.setItem('crunchtime:welcomed','1'); }catch(e){}   // no first-visit popup: drop people straight into the game
 playDaily();
 </script>
 </body>
