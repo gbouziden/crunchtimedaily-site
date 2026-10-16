@@ -303,6 +303,7 @@ body.has-appbar .wrap{padding-bottom:110px}
 .pro-panel .price{font-family:var(--f-display);font-weight:900;font-size:46px;line-height:1}
 .pro-panel ul{margin:0;padding-left:18px}
 .pro-panel li{margin:4px 0}
+.vs-join{display:flex;gap:8px;margin-top:6px}.vs-join input{flex:1;min-width:0;font-family:var(--f-mono);font-size:18px;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:10px;border:1.5px solid var(--line,#ccc);border-radius:6px;background:var(--bg);color:inherit}.vs-or{margin-top:14px}
 .pro-panel .code{font-family:var(--f-mono);font-size:20px;font-weight:600;letter-spacing:.06em;background:var(--bg);border:1.5px dashed var(--accent);border-radius:6px;padding:10px;text-align:center}
 .game.locked{opacity:.6}
 .game .lock{font-family:var(--f-mono);font-size:11px;color:var(--led)}
@@ -1826,7 +1827,7 @@ async function vsCreate(){
   const link=`https://crunchtimedaily.com/?room=${r.code}`;
   $('vsBody').innerHTML=`<p>Send this to a friend:</p><div class="code">${r.code}</div><textarea class="share-box" rows="2" readonly>${link}</textarea>
     <div class="call"><button class="btn" id="vsShare" type="button">Send link</button></div><p class="hint" id="vsWait">Waiting for your friend to join…</p>`;
-  $('vsShare').onclick=async()=>{ const txt=`1v1 me in Crunch Time: we each coach one side of a real tied NBA ending. ${link}`; try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){} try{ await navigator.clipboard.writeText(txt); $('vsShare').textContent='Copied'; }catch(e){} };
+  $('vsShare').onclick=async()=>{ const txt=`1v1 me in Crunch Time: we each coach one side of a real tied NBA ending. ${link} (in the app, tap 1v1 and enter code ${r.code})`; if(NATIVE){ native({type:'share',text:txt}); return; } try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){} try{ await navigator.clipboard.writeText(txt); $('vsShare').textContent='Copied'; }catch(e){} };
   clearInterval(VS.timer); VS.timer=setInterval(async()=>{ const st=await api('/room/'+VS.code); if(st&&st.joined){ clearInterval(VS.timer); closeSheet('vsPanel'); vsStart(st); } }, 2000);
 }
 async function vsJoin(code){
@@ -2075,7 +2076,9 @@ $('dayNo').textContent=`No. ${DAY} · ${new Date().toLocaleDateString('en-US',{m
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',async()=>{ await loadIndex(); renderArchive(); openSheet('archivePanel'); });
 $('simBtn').addEventListener('click',startSim);
-$('vsBtn').addEventListener('click',()=>{ $('vsBody').innerHTML='<button class="btn" id="vsCreate" type="button">Start a match</button>'; $('vsCreate').onclick=vsCreate; openSheet('vsPanel'); });
+$('vsBtn').addEventListener('click',()=>{ $('vsBody').innerHTML='<button class="btn" id="vsCreate" type="button">Start a match</button><p class="hint vs-or">Got a code from a friend?</p><div class="vs-join"><input id="vsCodeIn" maxlength="4" autocapitalize="characters" autocomplete="off" placeholder="CODE" aria-label="Match code"><button class="btn ghost" id="vsJoinBtn" type="button">Join</button></div>'; $('vsCreate').onclick=vsCreate;
+  const go=()=>{ const c=$('vsCodeIn').value.trim().toUpperCase(); if(!/^[A-Z0-9]{4}$/.test(c)){ $('vsCodeIn').focus(); return; } closeSheet('vsPanel'); vsJoin(c); };
+  $('vsJoinBtn').onclick=go; $('vsCodeIn').onkeydown=e=>{ if(e.key==='Enter') go(); }; openSheet('vsPanel'); });
 $('liveBtn').addEventListener('click',()=>{ openSheet('livePanel'); renderLiveList(); pollLiveList(); });
 $('proBtn').addEventListener('click',()=>openPro());
 $('survBtn').addEventListener('click',async()=>{ if(SURV.active){ await loadIndex(); startReal('survival', await getEnding(SURV.active)); } else startSurvival(SURV.run===0); });
