@@ -153,6 +153,8 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .vs .lbl{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .vs .num{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1}
 .vs .win{border-color:var(--accent);background:var(--accent-soft)}
+.pct{font-size:15px;background:var(--accent-soft);border-radius:6px;padding:8px 10px}
+.pct b{font-family:var(--f-display);font-size:22px}
 .grid-emoji{font-size:26px;letter-spacing:2px}
 .stats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .stats b{display:block;font-family:var(--f-display);font-size:26px;color:var(--ink);line-height:1}
@@ -184,6 +186,8 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .appbar a.get{font-family:var(--f-display);font-weight:800;font-size:18px;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);text-decoration:none;border-radius:999px;padding:6px 16px}
 .appbar button{background:none;border:0;color:var(--board-text);font-size:20px;line-height:1;padding:4px;cursor:pointer}
 body.has-appbar .wrap{padding-bottom:110px}
+.namef{display:flex;gap:8px}
+.namef input{flex:1;min-width:0;font:inherit;font-size:16px;padding:9px 10px;border:1.5px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
 .dist{display:flex;flex-direction:column;gap:5px}
 .dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .dist .bar{height:16px;border-radius:3px;background:var(--accent)}
@@ -236,6 +240,10 @@ body.has-appbar .wrap{padding-bottom:110px}
     <div class="stats" id="statsTop"></div>
     <h3>Grade distribution</h3>
     <div class="dist" id="statsDist"></div>
+    <h3>Leaderboard · last 30 days</h3>
+    <div class="hist" id="statsBoard"><p class="hint">Loading…</p></div>
+    <form class="namef" id="nameForm"><input id="nameIn" maxlength="18" placeholder="Your name on the board" autocomplete="off"><button class="btn ghost" type="submit">Save</button></form>
+    <p class="hint" id="nameMsg">Optional. Play 3 dailies in 30 days to appear.</p>
     <h3>History</h3>
     <div class="hist" id="statsHist"></div>
     <p class="hint">Saved on this device. No account needed.</p>
@@ -515,6 +523,21 @@ let G = null;   // current game (either kind)
 // Inside the iPhone app the page can call native code (share sheet, haptics, daily reminder).
 const NATIVE = (()=>{ try{ return window.webkit.messageHandlers.ct; }catch(e){ return null; } })();
 const native = msg => { try{ NATIVE && NATIVE.postMessage(msg); }catch(e){} };
+// Anonymous daily results: no account, just a random id kept on this device.
+const API = 'https://chartread.onrender.com/api/ct';
+const PID = (()=>{ try{ let p=localStorage.getItem('crunchtime:pid'); if(!p){ p=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()); localStorage.setItem('crunchtime:pid',p); } return p; }catch(e){ return ''; } })();
+async function api(path, body){
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(),8000);
+  try{ const r=await fetch(API+path, body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal}:{signal:ctl.signal}); const j=await r.json(); return r.ok?j:{error:j.error||'error'}; }
+  catch(e){ return null; } finally{ clearTimeout(t); }
+}
+function applyRank(d, st){
+  if(!st || st.percentile==null) return;
+  d.pct=st.percentile; d.rank=st.rank; d.players=st.players;
+  if(d.mode==='daily') store.set(SAVE_KEY(d.day), d);
+  const el=$('pctLine'); if(el){ el.hidden=false; el.innerHTML = st.players<2 ? `You're the first to finish today. Check back for your rank.` : `Better than <b>${st.percentile}%</b> of players · Rank #${st.rank} of ${st.players}${st.beatCoachPct!=null?` · ${st.beatCoachPct}% beat the coach`:''}`; }
+  const sb=$('shareBox'); if(sb) sb.value=shareText(d);
+}
 const DAY = todayNumber();
 const SAVE_KEY = d => 'crunchtime:v2:'+d;
 
@@ -705,6 +728,7 @@ function finishReal(){
       coach:d.realLabel,coachWp:d.coachWp}))};
   if(G.mode==='daily'){ store.set(SAVE_KEY(G.day),data); bumpStats(data); native({type:'finished',day:G.day}); }
   renderResult(data);
+  if(G.mode==='daily' && PID) api('/result',{day:G.day,pid:PID,score,coach:coachScore,grid:data.grid,src:NATIVE?'app':'web'}).then(st=>applyRank(data,st));
 }
 
 /* ======================= FREE PLAY (simulated) ======================= */
@@ -778,8 +802,8 @@ function verdict(d){
 }
 function shareText(d){
   const head = d.mode==='daily'?`Crunch Time Daily #${d.day} 🏀`:d.kind==='real'?'Crunch Time Daily (archive) 🏀':'Crunch Time Daily (free play) 🏀';
-  const game = d.kind==='real'?`\n${d.usAb} vs ${d.themAb}, real final ${d.us}-${d.them}`:'';
-  return `${head}${game}\nMe ${d.score} · ${d.kind==='real'?'Real coach':'Conventional coach'} ${d.coachScore}\n${verdict(d)}\n${d.grid}\ncrunchtimedaily.com`;
+  const game = d.kind==='real'?`\n${teamOf(d.usAb).nick} vs ${teamOf(d.themAb).nick}, real final ${d.us}-${d.them}`:'';
+  return `${head}${game}\nMe ${d.score} · ${d.kind==='real'?'Real coach':'Conventional coach'} ${d.coachScore}\n${verdict(d)}${d.pct!=null&&d.players>=10?`\nBetter than ${d.pct}% of players`:''}\n${d.grid}\ncrunchtimedaily.com`;
 }
 function renderResult(d){
   const R=$('result'); R.hidden=false;
@@ -795,6 +819,7 @@ function renderResult(d){
       <div class="${d.score>=d.coachScore?'win':''}"><div class="lbl">Your calls</div><div class="num">${d.score}</div></div>
       <div class="${d.coachScore>d.score?'win':''}"><div class="lbl">${coachName}</div><div class="num">${d.coachScore}</div></div>
     </div>
+    <div class="pct" id="pctLine" ${d.pct!=null?'':'hidden'}>${d.pct!=null?`Better than <b>${d.pct}%</b> of players · Rank #${d.rank} of ${d.players}`:''}</div>
     <div class="grid-emoji" aria-label="Decision grades">${d.grid||'No calls needed'}</div>
     <div class="hint">${d.kind==='real'?`Real final: ${esc(d.usAb)} ${d.us}, ${esc(d.themAb)} ${d.them}. `:`${d.won?'You won':'You lost'} ${d.us}–${d.them}. `}50 is solid, 90+ is elite. The grade measures calls, not bounces.</div>
     ${st?`<div class="stats"><span><b>${st.played}</b>Played</span><span><b>${st.streak}</b>Streak</span><span><b>${st.best}</b>Best streak</span><span><b>${st.played?Math.round(st.sum/st.played):0}</b>Avg grade</span><span><b>${st.beat}</b>Beat coach</span></div>`:''}
@@ -833,6 +858,7 @@ function showSavedDaily(saved){
   renderBoard(); $('panel').hidden=true;
   $('matchup').textContent = `${g.title.replace(/,.*$/,'')} · ${shortDate(g.date)}`;
   renderResult(saved);
+  if(PID) api(`/day/${DAY}?pid=${encodeURIComponent(PID)}`).then(st=>applyRank(saved,st));
   $('sitHead').textContent=`You played Daily #${DAY}`;
   $('sitNote').textContent=`A new real ending drops tomorrow. The archive is open any time.`;
   window.scrollTo(0,0);
@@ -844,10 +870,16 @@ function renderStats(){
   const games=[]; for(let d=DAY; d>=1; d--){ const sv=store.get(SAVE_KEY(d)); if(sv) games.push(sv); }
   const streak = st.lastDay>=DAY-1 ? st.streak : 0;
   const bestDay = games.reduce((m,g)=>Math.max(m,g.score),0);
-  $('statsTop').innerHTML = `<span><b>${st.played}</b>Played</span><span><b>${st.played?Math.round(st.sum/st.played):'–'}</b>Avg grade</span><span><b>${streak}</b>Day streak</span><span><b>${st.best}</b>Best streak</span><span><b>${games.length?bestDay:'–'}</b>Best day</span><span><b>${st.beat}</b>Beat coach</span>`;
+  const pcts = games.filter(g=>g.pct!=null).map(g=>g.pct), avgPct = pcts.length?Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length):null;
+  $('statsTop').innerHTML = `<span><b>${st.played}</b>Played</span><span><b>${st.played?Math.round(st.sum/st.played):'–'}</b>Avg grade</span><span><b>${avgPct!=null?avgPct+'%':'–'}</b>Avg percentile</span><span><b>${streak}</b>Day streak</span><span><b>${st.best}</b>Best streak</span><span><b>${games.length?bestDay:'–'}</b>Best day</span><span><b>${st.beat}</b>Beat coach</span>`;
   const buckets=[[90,100,'90–100'],[75,89,'75–89'],[50,74,'50–74'],[25,49,'25–49'],[0,24,'0–24']];
   const counts=buckets.map(([a,b])=>games.filter(g=>g.score>=a&&g.score<=b).length), max=Math.max(1,...counts);
   $('statsDist').innerHTML = buckets.map(([,,l],i)=>`<div class="row"><span>${l}</span><span><span class="bar" style="display:block;width:${counts[i]?Math.max(4,100*counts[i]/max):0}%"></span></span><b>${counts[i]}</b></div>`).join('');
+  try{ $('nameIn').value=localStorage.getItem('crunchtime:name')||''; }catch(e){}
+  api(`/leaderboard?day=${DAY}`).then(lb=>{
+    const rows=lb&&lb.rows||[];
+    $('statsBoard').innerHTML = rows.length ? rows.map((r,i)=>`<div class="h"><span class="d">${i+1}</span><span>${esc(r.name)}<br><span class="d">${r.played} played · beat coach ${r.beat}</span></span><span class="sc">${r.avg}</span></div>`).join('') : `<p class="hint">${lb?'No one on the board yet. Set a name and play 3 dailies.':'Leaderboard is offline right now.'}</p>`;
+  });
   $('statsHist').innerHTML = games.length ? games.map(g=>`<div class="h"><span class="d">#${g.day}</span><span><span>${esc(teamOf(g.usAb).nick)} vs ${esc(teamOf(g.themAb).nick)}</span><br><span class="g">${g.grid}</span></span><span class="sc">${g.score}</span></div>`).join('') : '<p class="hint">Play today\'s ending to start your history.</p>';
 }
 
@@ -866,6 +898,13 @@ $('dailyBtn').textContent=`Daily #${DAY}`;
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',()=>{ const p=$('archivePanel'); p.hidden=!p.hidden; if(!p.hidden){ renderArchive(); p.scrollIntoView({block:'nearest'}); } });
 $('simBtn').addEventListener('click',startSim);
+$('nameForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const name=$('nameIn').value.trim(); if(!name||!PID) return;
+  $('nameMsg').textContent='Saving…';
+  const r=await api('/name',{pid:PID,name});
+  if(r&&r.ok){ try{ localStorage.setItem('crunchtime:name',r.name); }catch(e){} $('nameMsg').textContent=`Saved. You'll show up as ${r.name} after 3 dailies.`; }
+  else $('nameMsg').textContent = r&&r.error ? r.error : 'Could not reach the server. Try again later.';
+});
 $('statsBtn').addEventListener('click',()=>{ const p=$('statsPanel'); p.hidden=!p.hidden; if(!p.hidden){ renderStats(); p.scrollIntoView({block:'nearest'}); } });
 $('howBtn').addEventListener('click',e=>{ const p=$('howPanel'); p.hidden=!p.hidden; e.currentTarget.setAttribute('aria-pressed',String(!p.hidden)); });
 
