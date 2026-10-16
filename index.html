@@ -18,6 +18,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://crunchtimedaily.com/og.png">
 <link rel="apple-touch-icon" href="https://crunchtimedaily.com/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://crunchtimedaily.com/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Crunch Time Daily","url":"https://crunchtimedaily.com/","description":"Call the plays in real NBA endings. One ending a day: beat the real coach and see how you rank."}</script>
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%80%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,6 +100,7 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .tos{display:inline-flex;gap:4px;vertical-align:middle;margin-left:6px}
 .tos i{width:8px;height:8px;border-radius:50%;background:var(--led);display:inline-block}
 .tos i.used{background:var(--led-dim)}
+.tos.them{margin-left:10px}.tos.them em{font-style:normal;margin-right:4px;opacity:.8}.tos.them i{background:var(--board-text)}.tos.them i.used{background:#3a3f46}
 .poss{color:var(--led)}
 .poss.off{color:var(--led-dim)}
 .wpbar{margin-top:10px;display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em}
@@ -210,6 +214,31 @@ body.has-appbar .wrap{padding-bottom:110px}
 .allopts .ao{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line)}
 .allopts .ao.me{color:var(--accent);font-weight:700}
 .allopts b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.intro{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:6px 0}
+.ig-kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ig-sub{font-weight:700}
+.ig-big{font-family:var(--f-display);font-weight:900;font-size:clamp(46px,13vw,68px);line-height:.9;text-transform:uppercase}
+.ig-clock{font-family:var(--f-display);font-weight:800;font-size:22px;text-transform:uppercase;color:var(--muted)}
+.ig-teams{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;width:100%;margin-top:6px}
+.ig-teams b{display:block;font-family:var(--f-display);font-size:24px;text-transform:uppercase}
+.ig-teams small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.ig-score{font-family:var(--f-display);font-weight:900;font-size:40px}
+.ig-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ig-chip{border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px}
+.ig-q{margin:6px 0 2px;font-size:16px}
+.look{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;border-radius:6px;padding:9px 11px;background:color-mix(in srgb,var(--bad) 12%,transparent);border:1.5px solid color-mix(in srgb,var(--bad) 45%,transparent)}
+.look.off{background:color-mix(in srgb,var(--ok) 14%,transparent);border-color:color-mix(in srgb,var(--ok) 50%,transparent)}
+.look span{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.look b{font-family:var(--f-display);font-weight:800;font-size:20px;text-transform:uppercase}
+.look small{grid-column:2;color:var(--muted);font-size:13px}
+.h2h{border:2px solid var(--line);border-radius:10px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.h2h.won{border-color:var(--good)}.h2h.lost{border-color:var(--bad)}
+.h2-k{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.h2-big{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,8vw,44px);line-height:.95;text-transform:uppercase}
+.h2h.won .h2-big{color:var(--good)}.h2h.lost .h2-big{color:var(--bad)}
+.h2-row{display:flex;justify-content:space-between;gap:10px;font-size:15px}.h2-row span{color:var(--muted)}
+.sv-head{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--good)}
+.phil{border:2px solid var(--led);border-radius:10px;padding:12px;background:color-mix(in srgb,var(--led) 14%,transparent);font-size:15px}
 .dist{display:flex;flex-direction:column;gap:5px}
 .dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .dist .bar{height:16px;border-radius:3px;background:var(--accent)}
@@ -303,7 +332,7 @@ dialog.sheet:not([open]){display:none!important}
     <div class="hist" id="survBoard"><p class="hint">Loading…</p></div>
     <h3>History</h3>
     <div class="hist" id="statsHist"></div>
-    <p class="hint">Saved on this device. No account needed.</p>
+    <p class="hint">Saved on this device. No account needed. <a href="stats.html">See everyone's results today →</a></p>
   </dialog>
 
   <dialog class="sheet panel pro-panel" id="proPanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
@@ -323,7 +352,7 @@ dialog.sheet:not([open]){display:none!important}
       <div class="team"><span class="badge" id="bThem"><span class="nick" id="kThem">Opp</span></span><span class="team-name" id="nThem">Opp</span><span class="rec" id="rThem"></span><span class="score" id="sThem">0</span></div>
     </div>
     <div class="board-foot">
-      <span>TOL <span class="tos" id="sTo"></span></span>
+      <span>TOL <span class="tos" id="sTo"></span><span class="tos them" id="sToThem"></span></span>
       <span id="sPoss" class="poss">◀ Ball</span>
       <span id="sBonus">Bonus</span>
     </div>
@@ -367,7 +396,7 @@ dialog.sheet:not([open]){display:none!important}
   </section>
 
   <div id="adFooter"></div>
-  <p class="foot">A fan-made daily game. Not affiliated with the NBA or any team. Real endings are built from public play-by-play at <a href="https://www.basketball-reference.com/" target="_blank" rel="noopener">Basketball-Reference.com</a>; win odds come from a league-average possession model, not team-specific ratings. Free play uses invented situations. <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></p>
+  <p class="foot">A fan-made daily game. Not affiliated with the NBA or any team. Real endings are built from public play-by-play at <a href="https://www.basketball-reference.com/" target="_blank" rel="noopener">Basketball-Reference.com</a>; win odds come from a league-average possession model, not team-specific ratings. Free play uses invented situations. <a href="how-it-works.html">How it works</a> · <a href="stats.html">Stats</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></p>
 </div>
 
 <div class="appbar" id="appbar" hidden>
@@ -402,9 +431,30 @@ const Engine = (() => {
     foul:    {name:'Foul now', desc:'Stop the clock. They shoot two at 77%.'},
   };
 
+  // What the defense shows before the play. Each look shifts the odds of specific calls.
+  const LOOKS = {
+    switch:{name:'Switching everything', tip:'Mismatches for your star; screens do less.', mod:{pnr:{m2:-.05,m3:-.02,to:.01}, iso:{m2:.05,m3:.02,foul:.02}}},
+    drop:  {name:'Dropping the big', tip:'Pull-ups off the screen are open; the rim is crowded.', mod:{pnr:{m3:.05,two:-.2}, rim:{m2:-.04}}},
+    deny:  {name:'Running you off the line', tip:'Threes are contested; driving lanes open up.', mod:{three:{m3:-.06,to:.02}, rim:{m2:.05,foul:.02}, pnr:{m3:-.04,two:.15}}},
+    blitz: {name:'Trapping the pick-and-roll', tip:'Two on the ball; the roll man is open if you beat it.', mod:{pnr:{to:.05,m2:.08}, iso:{to:.02}}},
+    pack:  {name:'Packing the paint', tip:'A wall at the rim; shooters get space.', mod:{rim:{m2:-.07,foul:-.03}, three:{m3:.04}, pnr:{m3:.02,m2:-.03}}},
+  };
+  const LEANS = {
+    hunt3:{name:'Hunting a three', tip:'They want a three. Chasing shooters matters most.', force:'three'},
+    star: {name:'Going to their star', tip:'Expect an isolation. A trap can take the ball out of his hands.', force:'iso'},
+    rim:  {name:'Attacking the rim', tip:'They want a layup or free throws.', force:'rim'},
+    pnr:  {name:'Running pick-and-roll', tip:'A screen for their ball handler.', force:'pnr'},
+  };
+  function pickLook(seed, s){
+    const r=mulberry32(seed)();
+    if(s.poss==='us'){ const ks=['switch','drop','deny','blitz','pack']; return {kind:'def', key:ks[Math.floor(r*ks.length)]}; }
+    const need=s.us-s.them; // their deficit is our lead
+    const ks = need===3 ? ['hunt3','hunt3','star','pnr'] : need>=4 ? ['hunt3','hunt3','hunt3','pnr'] : ['star','rim','pnr','hunt3'];
+    return {kind:'off', key:ks[Math.floor(r*ks.length)]};
+  }
   const D = s => s.us - s.them;
   const other = side => side==='us'?'them':'us';
-  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r}}
+  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look}}
   // Team shooting relative to league average (1 = average). Set per real game from season stats.
   const R = (s,side) => (s.r&&s.r[side]) || {f2:1,f3:1,ft:FT[side]};
   function add(s,side,p){ if(side==='us') s.us+=p; else s.them+=p; }
@@ -435,8 +485,8 @@ const Engine = (() => {
     shootFTs(s,shooter,2,rng,ev);
   }
 
-  function runOffense(s,side,play,tempo,useTO,def,rng,ev){
-    const P=PLAYS[play], T=TEMPOS[tempo], t0=s.t;
+  function runOffense(s,side,play,tempo,useTO,def,rng,ev,look){
+    const P=lookMod(PLAYS[play],play,look), T=TEMPOS[tempo], t0=s.t;
     const heave = t0 < (useTO?0.6:1.2);
     let tu;
     if(heave) tu=t0;
@@ -481,6 +531,10 @@ const Engine = (() => {
     flip(s);
   }
 
+  function lookMod(P,play,look){
+    const m=look&&look.kind==='def'&&LOOKS[look.key]&&LOOKS[look.key].mod[play]; if(!m) return P;
+    const o={...P}; for(const k in m) o[k]=k==='two'?Math.max(0,Math.min(1,o.two+m.two)):o[k]+m[k]; return o;
+  }
   function oppFouls(s){ const d=D(s),t=s.t; return d>=1 && ((d<=3&&t<=24)||(d>3&&d<=8&&t<=40)); }
   function oppDef(s){ const d=D(s); if(d>=-3 && d<=-1 && s.t<=24) return d===-3?'deny3':(s.t<=10?'deny3':'straight'); return 'straight'; }
   function oppAI(s){
@@ -503,9 +557,10 @@ const Engine = (() => {
     s.over=true; return null;
   }
   function applyUser(s,a,rng,ev){
-    if(s.poss==='us'){ if(a.to) s.toUs--; runOffense(s,'us',a.play,a.tempo,!!a.to,oppDef(s),rng,ev); }
+    const look=s.look; s.look=null;   // a look only applies to the possession it was shown on
+    if(s.poss==='us'){ if(a.to) s.toUs--; runOffense(s,'us',a.play,a.tempo,!!a.to,oppDef(s),rng,ev,look); }
     else if(a.def==='foul') intentionalFoul(s,'them',rng,ev);
-    else { const ai=oppAI(s); runOffense(s,'them',ai.play,ai.tempo,false,a.def,rng,ev); }
+    else { const ai=oppAI(s); if(look&&look.kind==='off'&&LEANS[look.key]) ai.play=LEANS[look.key].force; runOffense(s,'them',ai.play,ai.tempo,false,a.def,rng,ev); }
     return advance(s,rng,ev);
   }
   const result = s => D(s)>0?1:D(s)<0?0:.5;
@@ -557,13 +612,13 @@ const Engine = (() => {
       return {a,key:key(a),wp:w/N};
     });
   }
-  return {mulberry32,hash,PLAYS,TEMPOS,DEFS,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
+  return {mulberry32,hash,PLAYS,TEMPOS,DEFS,LOOKS,LEANS,pickLook,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
 })();
 
 /* ======================= DATA ======================= */
 // Real endings live in data/<season>.json, listed in data/index.json with the locked daily schedule.
 const DATA_BASE = (location.protocol==='http:'||location.protocol==='https:') ? 'data/' : 'https://crunchtimedaily.com/data/';
-const DATA_V = 175;
+const DATA_V = 307;
 let INDEX = null; const SEASONS = {};
 async function loadIndex(){ if(!INDEX){ const r=await fetch(DATA_BASE+'index.json?v='+DATA_V); INDEX=await r.json(); } return INDEX; }
 async function getEnding(id){
@@ -603,6 +658,8 @@ function todayNumber(){ const n=new Date(); const a=new Date(n.getFullYear(),n.g
 const TEAMS = {ATL:['Hawks','#C8102E','#FDB927'],BOS:['Celtics','#007A33','#FFFFFF'],BKN:['Nets','#000000','#FFFFFF'],CHA:['Hornets','#1D1160','#00788C'],CHI:['Bulls','#CE1141','#000000'],CLE:['Cavaliers','#860038','#FDBB30'],DAL:['Mavericks','#00538C','#B8C4CA'],DEN:['Nuggets','#0E2240','#FEC524'],DET:['Pistons','#C8102E','#1D42BA'],GSW:['Warriors','#1D428A','#FFC72C'],HOU:['Rockets','#CE1141','#C4CED4'],IND:['Pacers','#002D62','#FDBB30'],LAC:['Clippers','#C8102E','#1D428A'],LAL:['Lakers','#552583','#FDB927'],MEM:['Grizzlies','#5D76A9','#12173F'],MIA:['Heat','#98002E','#F9A01B'],MIL:['Bucks','#00471B','#EEE1C6'],MIN:['Timberwolves','#0C2340','#78BE20'],NOP:['Pelicans','#0C2340','#C8102E'],NYK:['Knicks','#006BB6','#F58426'],OKC:['Thunder','#007AC1','#EF3B24'],ORL:['Magic','#0077C0','#C4CED4'],PHI:['76ers','#006BB6','#ED174C'],PHX:['Suns','#1D1160','#E56020'],POR:['Trail Blazers','#E03A3E','#000000'],SAC:['Kings','#5A2D81','#63727A'],SAS:['Spurs','#000000','#C4CED4'],TOR:['Raptors','#CE1141','#000000'],UTA:['Jazz','#002B5C','#F9A01B'],WAS:['Wizards','#002B5C','#E31837'],SEA:['SuperSonics','#00653A','#FFC200'],NJN:['Nets','#002A60','#CD1041'],CHB:['Bobcats','#F26532','#2C5697'],NOH:['Hornets','#00778B','#280071'],NOK:['Hornets','#00778B','#280071'],VAN:['Grizzlies','#00B2A9','#E43C40']};
 const teamOf = (ab, full) => { const t=TEAMS[ab]; return t?{ab,nick:full?nickOf(ab,full):t[0],c1:t[1],c2:t[2]}:{ab,nick:full?nickOf(ab,full):ab,c1:'#333',c2:'#999'}; };
 const recTxt = r => r?`${r[0]}-${r[1]}`:'';
+const coachName = g => (g && g.coach && g.coach.us) || null;
+const coachLast = g => { const n=coachName(g); return n ? n.split(' ').slice(-1)[0] : 'the real coach'; };
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -655,6 +712,7 @@ function setMode(m){
   $('simBtn').classList.toggle('solid',m==='sim');
 }
 function resetView(){
+  document.querySelector('.court-wrap').hidden=false; $('situation').hidden=false;
   $('pbp').innerHTML=''; $('result').hidden=true; $('panel').hidden=false; document.querySelectorAll('dialog.sheet[open]').forEach(d=>d.close());
 }
 
@@ -773,6 +831,7 @@ function renderBoard(){
   const s=G.s;
   const R=G.g&&G.g.rec, po=G.g&&G.g.playoffs;
   $('nUs').textContent=G.usAb; $('nThem').textContent=G.themAb;
+  $('sTo').dataset.ab=G.usAb;
   $('rUs').textContent=R?(po?`${R.us[0]} wins`:recTxt(R.us)):''; $('rThem').textContent=R?(po?`${R.them[0]} wins`:recTxt(R.them)):'';
   { const tu=TEAMS[G.usAb], tt=TEAMS[G.themAb]; Court.setColors(tu?[tu[1],tu[2]]:['#D4461A','#FFB21E'], tt?[tt[1],tt[2]]:['#2B3139','#9AA3AD']); }
   for(const [side,ab] of [['Us',G.usAb],['Them',G.themAb]]){
@@ -785,6 +844,8 @@ function renderBoard(){
   const max=Math.max(G.startTo,s.toUs);
   for(let i=0;i<max;i++){ const d=document.createElement('i'); if(i>=s.toUs) d.className='used'; tos.appendChild(d); }
   if(max===0) tos.textContent=' 0';
+  const tt=$('sToThem'); tt.innerHTML='';
+  if(G.kind==='real' && s.toThem!=null){ tt.insertAdjacentHTML('beforeend',`<em>${esc(G.themAb)}</em>`); for(let i=0;i<Math.max(2,s.toThem);i++){ const d=document.createElement('i'); if(i>=s.toThem) d.className='used'; tt.appendChild(d); } }
   const p=$('sPoss'); p.textContent = s.over?'Final':s.poss==='us'?`◀ ${G.usAb} ball`:`${G.themAb} ball ▶`; p.classList.toggle('off',!!s.over);
 }
 function setWP(wp){
@@ -818,13 +879,15 @@ function renderPanel(k){
   if(k==='off'){
     const plays=Object.entries(Engine.PLAYS).map(([v,p],i)=>radio('play',v,p.name,p.desc,p.rate,i===3)).join('');
     const tempos=Object.entries(Engine.TEMPOS).map(([v,p])=>radio('tempo',v,p.name,p.desc,'',v==='normal')).join('');
-    P.innerHTML = `<h3>Your call · offense</h3><div class="opts">${plays}</div>
+    const lk=s.look&&Engine.LOOKS[s.look.key];
+    P.innerHTML = `${lk?`<div class="look"><span>Defense</span><b>${lk.name}</b><small>${lk.tip}</small></div>`:''}<h3>Your call · offense</h3><div class="opts">${plays}</div>
       <h3>Tempo</h3><div class="seg">${tempos}</div>
       ${s.toUs>0?`<label class="toggle"><input type="checkbox" id="useTo"> Call timeout first: advance the ball and draw up the set</label>`:''}
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${s.r&&s.r.us?`${esc(G.usAb)} shot ${s.r.us.p3}% from three this season (league ${s.r.us.lg3}%).`:'Shot clock is 24 at the start of the possession.'}</span></div>`;
   } else {
     const defs=Object.entries(Engine.DEFS).map(([v,p],i)=>radio('def',v,p.name,p.desc,'',i===0)).join('');
-    P.innerHTML = `<h3>Your call · defense</h3><div class="opts">${defs}</div>
+    const ln=s.look&&Engine.LEANS[s.look.key];
+    P.innerHTML = `${ln?`<div class="look off"><span>Their offense</span><b>${ln.name}</b><small>${ln.tip}</small></div>`:''}<h3>Your call · defense</h3><div class="opts">${defs}</div>
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${G.themAb} ${Engine.D(s)<0?'lead':Engine.D(s)>0?'trail':'are tied'}; expect them to play the clock that way.</span></div>`;
   }
   $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : callSim(k));
@@ -909,6 +972,8 @@ function startReal(mode, ending){
   else if(g.rec) ctx=` · ${U.nick} ${recTxt(g.rec.us)}, ${T.nick} ${recTxt(g.rec.them)}`;
   $('matchup').textContent = `${g.home?`${tn} at ${un}`:`${un} at ${tn}`} · ${shortDate(g.date)}${ctx}`;
   $('sitNote').textContent = `You're coaching the ${U.nick}.`;
+  $('matchup').dataset.surv = mode==='survival' ? `Survival · ${SURV.run} win${SURV.run===1?'':'s'} · best ${SURV.best}` : '';
+  if(mode==='survival') $('matchup').textContent = `Survival · ${SURV.run} win${SURV.run===1?'':'s'} · best ${SURV.best} · ` + $('matchup').textContent;
   pushEvents([{t:first.t,side:'',text:`${mode==='daily'?'Daily #'+DAY:mode==='survival'?'Survival game '+(SURV.run+1):'Archive'}: ${g.title}. You coach the ${U.nick}.`,us:first.us,them:first.them,cls:'note'}], true);
   setWP(null);
   stepReal();
@@ -927,9 +992,30 @@ async function stepReal(){
   if(G.i>=g.steps.length){ finishReal(); return; }
   const st=g.steps[G.i];
   G.s={...st.state, sc:24, over:false, r:g.rates};
+  G.s.look=Engine.pickLook(Engine.hash(g.id,'look',G.i), G.s);
   renderBoard(); renderSituation(); Court.setOffense(G.s.poss); Court.name(''); Court.startIdle();
+  if(G.decisions.length===0 && !G.introDone){ renderIntro(st); return; }
   if(G.decisions.length===0) $('sitNote').textContent += ` You're coaching the ${teamOf(g.usAb,g.usFull).nick}.`;
   renderPanel(st.state.poss==='us'?'off':'def');
+}
+function renderIntro(st){
+  const g=G.g, s=G.s, d=Engine.D(s), U=teamOf(g.usAb,g.usFull), T=teamOf(g.themAb,g.themFull);
+  const big = d===0?'Tied':d>0?`Up by ${d}`:`Down by ${-d}`;
+  const cn=coachName(g);
+  const tos = (n,label)=>`<span class="ig-chip">${label}: ${n} timeout${n===1?'':'s'}</span>`;
+  document.querySelector('.court-wrap').hidden=true; $('situation').hidden=true;
+  const P=$('panel'); P.hidden=false;
+  P.innerHTML=`<div class="intro">
+    <div class="ig-kicker">${G.mode==='daily'?`Today's ending · Daily #${G.day}`:G.mode==='survival'?`Survival · game ${SURV.run+1}`:g.classic?`Greatest Endings · ${esc(g.classic)}`:'Archive'}</div>
+    <div class="ig-sub">${esc(g.title.replace(/,? (\w+ \d+, \d{4})$/,' · $1'))}</div>
+    <div class="ig-big">${big}</div>
+    <div class="ig-clock">${fmt(s.t)} left in the game</div>
+    <div class="ig-teams"><span><b>${esc(U.nick)}</b><small>${g.rec?(g.playoffs?`${g.rec.us[0]} series wins`:recTxt(g.rec.us)):''} · YOU</small></span><span class="ig-score">${s.us}–${s.them}</span><span><b>${esc(T.nick)}</b><small>${g.rec?(g.playoffs?`${g.rec.them[0]} series wins`:recTxt(g.rec.them)):''}</small></span></div>
+    <div class="ig-chips"><span class="ig-chip">${s.poss==='us'?'Your ball':'Their ball'}</span>${tos(s.toUs,'You')}${s.toThem!=null?tos(s.toThem,T.nick):''}</div>
+    <p class="ig-q">You're coaching the ${esc(U.nick)}.${cn?` Can you do better than <b>${esc(cn)}</b> did?`:' Can you beat the real coach?'}</p>
+    <button class="btn" id="introGo" type="button">Take over</button>
+  </div>`;
+  $('introGo').addEventListener('click',()=>{ G.introDone=true; document.querySelector('.court-wrap').hidden=false; $('situation').hidden=false; stepReal(); });
 }
 function coachAction(real, s){
   if(real.def) return {def:real.def};
@@ -943,7 +1029,7 @@ async function callReal(k){
   if(G.busy) return; G.busy=true;
   lockPanel('Grading…');
   await new Promise(r=>setTimeout(r,30));
-  const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false, r:g.rates};
+  const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false, r:g.rates, look:G.s.look};
   const a=readAction(k);
   if(G.decisions.length===0) track(G.mode==='daily'?'start':'practice', G.mode);
   const acting=Court.act(a);
@@ -960,7 +1046,7 @@ async function callReal(k){
       <div class="rv-head"><i class="sq ${sq}"></i><b>${SQWORD[sq]}</b></div>
       <div class="rv-rows">
         <div class="rv me"><span class="who">You</span><span class="what">${esc(Engine.label(a))}</span><span class="wp">${pct(d.wp)}</span></div>
-        <div class="rv"><span class="who">Real coach</span><span class="what">${esc(d.realLabel)}</span><span class="wp">${pct(d.coachWp)}</span></div>
+        <div class="rv"><span class="who">${esc(coachName(g)||'Real coach')}</span><span class="what">${esc(d.realLabel)}</span><span class="wp">${pct(d.coachWp)}</span></div>
         ${same?'':`<div class="rv"><span class="who">Best</span><span class="what">${esc(Engine.label(d.best.a))}</span><span class="wp">${pct(d.best.wp)}</span></div>`}
       </div>
       <div class="why">${esc(whyLine(d))}</div>
@@ -986,7 +1072,7 @@ async function finishReal(){
   const coachScore=Math.round(100*ds.reduce((a,d)=>a+pts(d.best.wp-d.coachWp),0)/ds.length);
   const sq=ds.map(d=>square(d.best.wp-d.wp));
   const won=g.final.us>g.final.them;
-  const data={kind:'real',id:g.id,day:G.day,mode:G.mode,usFull:g.usFull,themFull:g.themFull,score,coachScore,won,us:g.final.us,them:g.final.them,usAb:g.usAb,themAb:g.themAb,title:g.title,
+  const data={kind:'real',id:g.id,day:G.day,mode:G.mode,usFull:g.usFull,themFull:g.themFull,coachFull:coachName(g),coachLast:coachName(g)?coachLast(g):null,classic:g.classic||null,score,coachScore,won,us:g.final.us,them:g.final.them,usAb:g.usAb,themAb:g.themAb,title:g.title,
     grid:sq.map(x=>EMOJI[x]).join(''),
     recap:ds.map((d,i)=>({sq:sq[i],sit:`${fmt(d.snap.t)} · ${sitWords(d.snap)} · ${d.snap.poss==='us'?'your':'their'} ball`,
       you:Engine.label(d.a),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
@@ -995,6 +1081,9 @@ async function finishReal(){
   data.coachPct=coachPct(score);
   const style = G.mode==='daily' ? addStyle(styleOf(ds)) : (()=>{ const a=store.get('crunchtime:style')||{off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0}, b=styleOf(ds); for(const k in b) a[k]+=b[k]; return a; })();
   data.coachLike=coachLike(style);
+  // #FindPhil: a perfect 100 with five or more calls, every one the single best option.
+  data.phil = score===100 && ds.length>=5 && ds.every(d=>Engine.key(d.a)===d.best.key);
+  if(data.phil){ const n=(store.get('crunchtime:phil')||0)+1; store.set('crunchtime:phil',n); }
   if(G.mode==='daily'){ bumpStats(data); data.streak=(store.get('crunchtime:v2:stats')||{}).streak||1; store.set(SAVE_KEY(G.day),data); native({type:'finished',day:G.day}); track('finish','daily'); }
   if(G.mode==='survival'){ survivalResult(data); return; }
   renderResult(data);
@@ -1017,6 +1106,7 @@ function startSim(){
 }
 function simNext(k, first){
   if(!k || G.s.over){ finishSim(); return; }
+  G.s.look=Engine.pickLook(Engine.hash(G.seed,'look',G.decisions.length), G.s);
   if(!first) renderSituation(); Court.setOffense(G.s.poss); renderPanel(k);
 }
 async function callSim(k){
@@ -1069,7 +1159,7 @@ function bumpStats(d){
   store.set('crunchtime:v2:stats',st);
 }
 function verdict(d){
-  const coach = d.kind==='real'?'the real coach':'the conventional coach';
+  const coach = d.kind==='real'?(d.coachLast||'the real coach'):'the conventional coach';
   return d.score>d.coachScore?`Beat ${coach}`:d.score===d.coachScore?`Tied ${coach}`:`Lost to ${coach}`;
 }
 let COACHES=null;
@@ -1095,6 +1185,7 @@ function shareText(d){
     if(d.pct!=null && d.players>=10) lines.push(`Better than ${d.pct}% of players today`);
     if(d.coachLike) lines.push(`Coached like ${d.coachLike}`);
     lines.push(verdict(d));
+    if(d.phil) lines.push('🧘 Found Phil Jackson #FindPhil');
     if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak`);
     lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.grid}`);
     lines.push('Can you beat me? https://crunchtimedaily.com');
@@ -1114,10 +1205,16 @@ function renderResult(d){
       <div class="res-score">${d.score}<small>/100</small></div>
       <div style="text-align:right"><div class="res-verdict">${tier}</div><div class="hint">${esc(verdict(d))}</div></div>
     </div>
-    <div class="vs">
+    ${d.phil?`<div class="phil">🧘 <b>You found Phil Jackson.</b> Five or more calls, every one the single best option. Almost nobody does this.</div>`:''}
+    ${d.kind==='real'?`<div class="h2h ${d.score>=d.coachScore?'won':'lost'}">
+      <div class="h2-k">You vs ${esc(d.coachFull||'the real coach')}</div>
+      <div class="h2-big">${d.score>d.coachScore?`You beat ${esc(d.coachLast||'the coach')}`:d.score===d.coachScore?`You matched ${esc(d.coachLast||'the coach')}`:`${esc(d.coachLast||'The coach')} wins this one`}</div>
+      <div class="h2-row"><b>You</b><span>${d.score} grade</span></div>
+      <div class="h2-row"><b>${esc(d.coachLast||'Real coach')}</b><span>${d.coachScore} grade · real final ${d.won?'W':'L'} ${d.us}–${d.them}</span></div>
+    </div>`:`<div class="vs">
       <div class="${d.score>=d.coachScore?'win':''}"><div class="lbl">Your calls</div><div class="num">${d.score}</div></div>
       <div class="${d.coachScore>d.score?'win':''}"><div class="lbl">${coachName}</div><div class="num">${d.coachScore}</div></div>
-    </div>
+    </div>`}
     ${d.coachPct!=null?`<div class="hint" style="font-size:14px;color:var(--ink)">Better than <b>${d.coachPct}%</b> of real NBA coaches in these spots${d.coachLike?` · Coached like <b>${esc(d.coachLike)}</b>`:''}</div>`:''}
     <div class="pct" id="pctLine" ${d.pct!=null?'':'hidden'}>${d.pct!=null?`Better than <b>${d.pct}%</b> of players · Rank #${d.rank} of ${d.players}`:''}</div>
     <div class="grid-emoji" aria-label="Decision grades">${d.grid||'No calls needed'}</div>
@@ -1127,7 +1224,7 @@ function renderResult(d){
       <div class="rc"><i class="sq ${r.sq}"></i><div class="line">
         <div class="sit">${r.sit}</div>
         <div>You: <b>${esc(r.you)}</b> · ${pct(r.youWp)}</div>
-        <div>${coachName}: ${esc(r.coach)} · ${pct(r.coachWp)}</div>
+        <div>${esc(d.coachLast||coachName)}: ${esc(r.coach)} · ${pct(r.coachWp)}</div>
         ${r.same?'<div class="hint">You found the best call.</div>':`<div class="hint">Best: ${esc(r.best)} · ${pct(r.bestWp)}</div>`}
       </div></div>`).join('')}
     </div>
@@ -1231,7 +1328,7 @@ function survivalResult(d){
   renderResult(d);
   const box=document.createElement('div'); box.className='surv '+(alive?'alive':'dead');
   box.innerHTML = alive
-    ? `<div class="sv-big">Survived</div><div>Run: <b>${SURV.run}</b> · Best: ${SURV.best}. You matched or beat the real coach (${d.score} vs ${d.coachScore}).</div><button class="btn" id="survNext" type="button">Next game</button>`
+    ? `<div class="sv-big">${SURV.run} straight. You're still alive.</div><div>Run: <b>${SURV.run}</b> · Best: ${SURV.best}. You matched or beat the real coach (${d.score} vs ${d.coachScore}).</div><button class="btn" id="survNext" type="button">Next game</button>`
     : `<div class="sv-big">Run over</div><div>The real coach outgraded you ${d.coachScore} to ${d.score}. You survived <b>${SURV.run}</b> game${SURV.run===1?'':'s'}. Best: ${SURV.best}.</div><button class="btn" id="survNext" type="button">New run</button>`;
   $('result').prepend(box);
   $('survNext').addEventListener('click',()=>startSurvival(!alive));

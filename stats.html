@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Stats | Crunch Time Daily</title><meta name="description" content="Real results from everyone who played the daily NBA ending: players, scores, top ten, and the hunt for Phil Jackson."><link rel="canonical" href="https://crunchtimedaily.com/stats.html">
+<meta property="og:title" content="Daily Stats | Crunch Time Daily"><meta property="og:description" content="Real results from everyone who played the daily NBA ending: players, scores, top ten, and the hunt for Phil Jackson."><meta property="og:image" content="https://crunchtimedaily.com/og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0C0E11">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>:root{color-scheme:light dark;--bg:#ECEEE9;--panel:#fff;--ink:#16191D;--muted:#5B636C;--line:#D3D8D0;--accent:#D4461A;--led:#FFB21E}@media (prefers-color-scheme:dark){:root{--bg:#0E1114;--panel:#171B20;--ink:#E9ECEF;--muted:#9AA3AD;--line:#2B3139;--accent:#FF6B33}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Archivo,system-ui,sans-serif}main{max-width:760px;margin:0 auto;padding:22px 16px 64px}
+.brand{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;font-size:40px;text-transform:uppercase;text-decoration:none;color:var(--ink);line-height:1}.brand span{color:var(--accent)}
+nav{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 22px;font-family:"IBM Plex Mono",monospace;font-size:13px;text-transform:uppercase;letter-spacing:.08em}nav a{color:var(--muted);text-decoration:none}nav a.on{color:var(--accent)}
+h1{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;font-size:42px;text-transform:uppercase;line-height:1;margin:0 0 10px}h2{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;font-size:26px;text-transform:uppercase;margin:28px 0 6px}
+a{color:var(--accent)}.muted{color:var(--muted);font-size:14px}.cta{display:inline-block;margin:14px 0;background:var(--accent);color:#fff;font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;font-size:22px;text-transform:uppercase;padding:10px 22px;border-radius:6px;text-decoration:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.tile{background:var(--panel);border:1.5px solid var(--line);border-radius:8px;padding:12px}.tile b{display:block;font-family:"Big Shoulders Display",Impact,sans-serif;font-size:38px;line-height:1}
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;border-bottom:1.5px solid var(--line);margin-top:10px}.bars div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;position:relative;min-height:2px}.bars div span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;font-family:"IBM Plex Mono",monospace;color:var(--muted)}
+.axis{display:flex;gap:6px}.axis span{flex:1;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted)}
+ol.top{padding-left:22px}ol.top li{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:6px 0}ol.top li b{font-family:"Big Shoulders Display",Impact,sans-serif;font-size:22px}
+.daynav{display:flex;gap:10px;align-items:center;margin:8px 0}.daynav button{font:inherit;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:4px 12px;cursor:pointer}
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:12px;font-size:13px;color:var(--muted)}</style></head><body><main>
+<a class="brand" href="/">Crunch<span>/</span>Time</a>
+<nav><a href="/">Play</a><a href="/how-it-works.html" >How it works</a><a href="/stats.html" class="on">Stats</a><a href="/about.html" >About</a><a href="/privacy.html">Privacy</a></nav>
+
+<h1>Daily stats</h1>
+<p class="muted">Every day, everyone plays the same real NBA ending. These are the real results from the people who played it. Each player's first finish of the day counts.</p>
+<div class="daynav"><button id="prev" type="button">‹</button><b id="dayLbl">Daily</b><button id="next" type="button">›</button></div>
+<div class="tiles" id="tiles"></div>
+<h2>How everyone scored</h2><div class="bars" id="bars"></div><div class="axis"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span></div>
+<h2>Top ten</h2><ol class="top" id="top"></ol>
+<h2>#FindPhil</h2><p id="phil">Nobody has found Phil Jackson yet.</p><p class="muted">Phil shows up for a perfect 100 on a daily with five or more calls, every one of them the single best option.</p>
+<a class="cta" href="/">Play today's ending</a>
+<script>
+const API='https://chartread.onrender.com/api/ct/public';
+let day=0, maxDay=0;
+async function load(d){
+  const r=await fetch(API+(d?'?day='+d:'')); const j=await r.json(); day=j.day; if(!maxDay) maxDay=j.day;
+  document.getElementById('dayLbl').textContent='Daily #'+day;
+  const fmt=n=>n==null?'–':Number(n).toLocaleString();
+  document.getElementById('tiles').innerHTML=`<div class="tile"><b>${fmt(j.players)}</b>played</div><div class="tile"><b>${fmt(j.avg)}</b>average grade</div><div class="tile"><b>${fmt(j.best)}</b>best grade</div><div class="tile"><b>${j.beatCoachPct==null?'–':j.beatCoachPct+'%'}</b>beat the real coach</div><div class="tile"><b>${fmt(j.allTime)}</b>dailies played, all time</div><div class="tile"><b>${fmt(j.bestSurvival)}</b>longest Survival run</div>`;
+  const mx=Math.max(1,...j.buckets); document.getElementById('bars').innerHTML=j.buckets.map(v=>`<div style="height:${100*v/mx}%"><span>${v||''}</span></div>`).join('');
+  document.getElementById('top').innerHTML=j.top.length?j.top.map(t=>`<li><span>${t.name.replace(/[<>&]/g,'')}</span><b>${t.score}</b></li>`).join(''):'<li>No finishes yet today.</li>';
+  document.getElementById('phil').textContent=j.philFound?`Phil Jackson has been found ${j.philFound} time${j.philFound===1?'':'s'}.`:'Nobody has found Phil Jackson yet.';
+  document.getElementById('prev').disabled=day<=1; document.getElementById('next').disabled=day>=maxDay;
+}
+document.getElementById('prev').onclick=()=>load(day-1); document.getElementById('next').onclick=()=>load(day+1);
+load(0).catch(()=>{ document.getElementById('tiles').innerHTML='<p>Stats are loading slowly. Try again in a minute.</p>'; });
+</script>
+<footer>Crunch Time Daily is an independent, fan-made game. It is not affiliated with, endorsed by, or sponsored by the NBA, its teams, or its players. Team and player names are used only to identify real games. Play-by-play facts from Basketball-Reference.com, rewritten in our own words.</footer></main></body></html>
