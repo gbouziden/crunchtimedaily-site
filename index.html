@@ -821,7 +821,7 @@ function renderPanel(k){
     P.innerHTML = `<h3>Your call · offense</h3><div class="opts">${plays}</div>
       <h3>Tempo</h3><div class="seg">${tempos}</div>
       ${s.toUs>0?`<label class="toggle"><input type="checkbox" id="useTo"> Call timeout first: advance the ball and draw up the set</label>`:''}
-      <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">Shot clock is 24 at the start of the possession.</span></div>`;
+      <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${s.r&&s.r.us?`${esc(G.usAb)} shot ${s.r.us.p3}% from three this season (league ${s.r.us.lg3}%).`:'Shot clock is 24 at the start of the possession.'}</span></div>`;
   } else {
     const defs=Object.entries(Engine.DEFS).map(([v,p],i)=>radio('def',v,p.name,p.desc,'',i===0)).join('');
     P.innerHTML = `<h3>Your call · defense</h3><div class="opts">${defs}</div>
@@ -899,7 +899,7 @@ function startReal(mode, ending){
   const first = g.steps[0].state;
   G = {kind:'real', mode, day:DAY, g, i:0, decisions:[], busy:false,
        usAb:g.usAb, themAb:g.themAb, startTo:Math.max(...g.steps.map(x=>x.state.toUs)),
-       s:{...first, sc:24, over:false}};
+       s:{...first, sc:24, over:false, r:g.rates}};
   resetView(); setMode(mode);
   const U=teamOf(g.usAb,g.usFull), T=teamOf(g.themAb,g.themFull);
   const un=g.usFull||`${g.us} ${U.nick}`, tn=g.themFull||`${g.them} ${T.nick}`;
@@ -920,13 +920,13 @@ async function stepReal(){
   const g=G.g;
   // possessions with no real decision (e.g. you get fouled right away) just play out
   while(G.i<g.steps.length && g.steps[G.i].auto){
-    G.s={...g.steps[G.i].state, sc:24, over:false}; renderBoard();
+    G.s={...g.steps[G.i].state, sc:24, over:false, r:g.rates}; renderBoard();
     await pushEvents(realLines(g.steps[G.i]), false);
     G.i++;
   }
   if(G.i>=g.steps.length){ finishReal(); return; }
   const st=g.steps[G.i];
-  G.s={...st.state, sc:24, over:false};
+  G.s={...st.state, sc:24, over:false, r:g.rates};
   renderBoard(); renderSituation(); Court.setOffense(G.s.poss); Court.name(''); Court.startIdle();
   if(G.decisions.length===0) $('sitNote').textContent += ` You're coaching the ${teamOf(g.usAb,g.usFull).nick}.`;
   renderPanel(st.state.poss==='us'?'off':'def');
@@ -943,7 +943,7 @@ async function callReal(k){
   if(G.busy) return; G.busy=true;
   lockPanel('Grading…');
   await new Promise(r=>setTimeout(r,30));
-  const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false};
+  const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false, r:g.rates};
   const a=readAction(k);
   if(G.decisions.length===0) track(G.mode==='daily'?'start':'practice', G.mode);
   const acting=Court.act(a);
@@ -976,7 +976,7 @@ async function callReal(k){
   nb.addEventListener('click',()=>{ G.i++; stepReal(); });
   nb.focus({preventScroll:true});
 }
-function finishReal(){
+async function finishReal(){
   const g=G.g;
   G.s={us:g.final.us, them:g.final.them, t:0, sc:0, poss:'us', toUs:G.s.toUs, over:true};
   renderBoard(); setWP(null);
@@ -991,7 +991,11 @@ function finishReal(){
     recap:ds.map((d,i)=>({sq:sq[i],sit:`${fmt(d.snap.t)} · ${sitWords(d.snap)} · ${d.snap.poss==='us'?'your':'their'} ball`,
       you:Engine.label(d.a),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
       coach:d.realLabel,coachWp:d.coachWp}))};
-  if(G.mode==='daily'){ store.set(SAVE_KEY(G.day),data); bumpStats(data); native({type:'finished',day:G.day}); track('finish','daily'); }
+  await loadCoaches();
+  data.coachPct=coachPct(score);
+  const style = G.mode==='daily' ? addStyle(styleOf(ds)) : (()=>{ const a=store.get('crunchtime:style')||{off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0}, b=styleOf(ds); for(const k in b) a[k]+=b[k]; return a; })();
+  data.coachLike=coachLike(style);
+  if(G.mode==='daily'){ bumpStats(data); data.streak=(store.get('crunchtime:v2:stats')||{}).streak||1; store.set(SAVE_KEY(G.day),data); native({type:'finished',day:G.day}); track('finish','daily'); }
   if(G.mode==='survival'){ survivalResult(data); return; }
   renderResult(data);
   if(G.mode==='daily' && PID) api('/result',{day:G.day,pid:PID,score,coach:coachScore,grid:data.grid,src:NATIVE?'app':'web'}).then(st=>applyRank(data,st));
@@ -1068,8 +1072,34 @@ function verdict(d){
   const coach = d.kind==='real'?'the real coach':'the conventional coach';
   return d.score>d.coachScore?`Beat ${coach}`:d.score===d.coachScore?`Tied ${coach}`:`Lost to ${coach}`;
 }
+let COACHES=null;
+async function loadCoaches(){ if(!COACHES){ try{ COACHES=await (await fetch(DATA_BASE+'coaches.json?v='+DATA_V)).json(); }catch(e){ COACHES={q:[],styles:{}}; } } return COACHES; }
+function coachPct(score){ const q=COACHES&&COACHES.q; if(!q||!q.length) return null; let below=0; for(const v of q) if(v<score) below++; else if(v===score) below+=.5; return Math.round(100*below/q.length); }
+// Style = how often you go for three, attack the rim, burn timeouts, play fast, and foul. Matched to real coaches.
+function styleOf(decs){ const o={off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0};
+  for(const d of decs){ const a=d.a; if(a.def){ o.def++; if(a.def==='foul') o.foul++; } else { o.off++; if(a.play==='three') o.three++; if(a.play==='rim') o.rim++; if(a.to) o.to++; if(a.tempo==='quick') o.quick++; } }
+  return o; }
+function addStyle(o){ const st=store.get('crunchtime:style')||{off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0}; for(const k in o) st[k]+=o[k]; store.set('crunchtime:style',st); return st; }
+function coachLike(st){
+  const S=COACHES&&COACHES.styles; if(!S||!st||st.off<2) return null;
+  const me=[st.three/st.off, st.rim/st.off, st.to/st.off, st.quick/st.off, st.def?st.foul/st.def:null];
+  let best=null, bd=1e9;
+  for(const [name,v] of Object.entries(S)){ let d=0; for(let i=0;i<5;i++){ if(me[i]==null) continue; d+=(me[i]-v[i])**2*(i===4?1.5:1); } if(d<bd){ bd=d; best=name; } }
+  return best;
+}
 function shareText(d){
   if(d.mode==='survival' && d.surv) return `Crunch Time Survival 🏀\n${d.surv.alive?`On a ${d.surv.run}-game run`:`Survived ${d.surv.run} game${d.surv.run===1?'':'s'}`} vs real NBA coaches\nBest run: ${d.surv.best}\n${SURV.grids.slice(-8).join(' ')}\ncrunchtimedaily.com`;
+  if(d.kind==='real'){
+    const lines=[d.mode==='daily'?`Crunch Time Daily #${d.day} 🏀`:d.mode==='archive'?'Crunch Time (archive) 🏀':'Crunch Time 🏀'];
+    if(d.coachPct!=null) lines.push(`Better than ${d.coachPct}% of NBA coaches`);
+    if(d.pct!=null && d.players>=10) lines.push(`Better than ${d.pct}% of players today`);
+    if(d.coachLike) lines.push(`Coached like ${d.coachLike}`);
+    lines.push(verdict(d));
+    if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak`);
+    lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.grid}`);
+    lines.push('Can you beat me? https://crunchtimedaily.com');
+    return lines.join('\n');
+  }
   const head = d.mode==='daily'?`Crunch Time Daily #${d.day} 🏀`:d.kind==='real'?'Crunch Time Daily (archive) 🏀':'Crunch Time Daily (free play) 🏀';
   const game = d.kind==='real'?`\n${teamOf(d.usAb,d.usFull).nick} vs ${teamOf(d.themAb,d.themFull).nick}, real final ${d.us}-${d.them}`:'';
   return `${head}${game}\nMe ${d.score} · ${d.kind==='real'?'Real coach':'Conventional coach'} ${d.coachScore}\n${verdict(d)}${d.pct!=null&&d.players>=10?`\nBetter than ${d.pct}% of players`:''}\n${d.grid}\ncrunchtimedaily.com`;
@@ -1088,6 +1118,7 @@ function renderResult(d){
       <div class="${d.score>=d.coachScore?'win':''}"><div class="lbl">Your calls</div><div class="num">${d.score}</div></div>
       <div class="${d.coachScore>d.score?'win':''}"><div class="lbl">${coachName}</div><div class="num">${d.coachScore}</div></div>
     </div>
+    ${d.coachPct!=null?`<div class="hint" style="font-size:14px;color:var(--ink)">Better than <b>${d.coachPct}%</b> of real NBA coaches in these spots${d.coachLike?` · Coached like <b>${esc(d.coachLike)}</b>`:''}</div>`:''}
     <div class="pct" id="pctLine" ${d.pct!=null?'':'hidden'}>${d.pct!=null?`Better than <b>${d.pct}%</b> of players · Rank #${d.rank} of ${d.players}`:''}</div>
     <div class="grid-emoji" aria-label="Decision grades">${d.grid||'No calls needed'}</div>
     <div class="hint">${d.kind==='real'?`Real final: ${esc(d.usAb)} ${d.us}, ${esc(d.themAb)} ${d.them}. `:`${d.won?'You won':'You lost'} ${d.us}–${d.them}. `}50 is solid, 90+ is elite. The grade measures calls, not bounces.</div>
