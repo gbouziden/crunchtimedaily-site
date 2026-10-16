@@ -86,6 +86,7 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .c-ball{fill:#E8711C;stroke:#2a1404;stroke-width:1.5}
 .c-p circle{stroke-width:2.5}
 .c-p text{font:700 10px var(--f-mono);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.c-p .c-pn{font:700 10px var(--f-body);paint-order:stroke;stroke:#0C0E11;stroke-width:3px}
 .c-flash{font:900 44px var(--f-display);fill:#fff;paint-order:stroke;stroke:#0C0E11;stroke-width:6px;opacity:0;text-transform:uppercase}
 .c-banner{font:700 14px var(--f-mono);letter-spacing:.08em;fill:#fff}
 .c-name{font:700 14px var(--f-body);fill:#fff;paint-order:stroke;stroke:#0C0E11;stroke-width:4px}
@@ -239,6 +240,24 @@ body.has-appbar .wrap{padding-bottom:110px}
 .h2-row{display:flex;justify-content:space-between;gap:10px;font-size:15px}.h2-row span{color:var(--muted)}
 .sv-head{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--good)}
 .phil{border:2px solid var(--led);border-radius:10px;padding:12px;background:color-mix(in srgb,var(--led) 14%,transparent);font-size:15px}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
+.wh{text-align:left;border:1.5px solid var(--line);border-radius:6px;padding:7px 8px;background:transparent;cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.wh b{font-size:13.5px}.wh small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.wh.on{border-color:var(--accent);background:var(--accent-soft)}
+.crowd{border:1.5px solid var(--line);border-radius:6px;padding:9px 11px;font-size:14px}
+.cr-rows{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.cr{display:grid;grid-template-columns:130px 1fr 40px;gap:8px;align-items:center;font-size:13px}
+.cr i{display:block;height:8px;border-radius:4px;background:var(--muted);opacity:.5}
+.cr.me i{background:var(--accent);opacity:1}.cr.me span{font-weight:700}.cr b{text-align:right;font-family:var(--f-mono)}
+.debate{font-size:14px;background:color-mix(in srgb,var(--led) 12%,transparent);border-radius:6px;padding:9px 11px}
+.dispute{font-size:12.5px;color:var(--muted);align-self:flex-start}
+.wpchart{width:100%;height:auto;display:block}
+.wpchart text{font:600 10px var(--f-mono);fill:var(--muted)}
+.wp-legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}.wp-legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.challenge{border:2px dashed var(--accent);border-radius:8px;padding:10px 12px;font-size:15px}
+.steps{display:flex;flex-direction:column;gap:10px}.steps>div{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}.steps b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-size:18px}
+.floor{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px}.floor summary{cursor:pointer;font-weight:600;font-size:14px}
+.fl{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;font-variant-numeric:tabular-nums}.fl th,.fl td{padding:4px 4px;border-bottom:1px dashed var(--line);text-align:right}.fl th:first-child,.fl td:first-child{text-align:left}.fl th{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);font-weight:600}.fl small{color:var(--muted)}
 .dist{display:flex;flex-direction:column;gap:5px}
 .dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .dist .bar{height:16px;border-radius:3px;background:var(--accent)}
@@ -287,7 +306,7 @@ dialog.sheet:not([open]){display:none!important}
   <header class="top">
     <div>
       <h1 class="brand">Crunch<span>/</span>Time <small class="daily">Daily</small></h1>
-      <p class="tag">A real NBA ending every day. Make the calls. Beat the real coach.</p>
+      <p class="tag"><b id="dayNo">No. 1</b> · A real NBA ending every day. Make the calls. Beat the real coach.</p>
     </div>
     <div class="top-meta">
       <button class="chip solid" id="dailyBtn" type="button">Daily</button>
@@ -300,6 +319,13 @@ dialog.sheet:not([open]){display:none!important}
     </div>
   </header>
 
+  <dialog class="sheet panel" id="welcome"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
+    <h3>Welcome to Crunch Time</h3>
+    <div class="steps"><div><b>1</b><span><strong>Make the call.</strong> A real NBA game, the last minute, real players on the floor. Pick the play and who shoots.</span></div>
+    <div><b>2</b><span><strong>Watch it play out.</strong> Then see what the real coach did and what actually happened.</span></div>
+    <div><b>3</b><span><strong>Beat the real coach.</strong> Every call is graded on win chance. One new ending every day.</span></div></div>
+    <button class="btn" type="button" data-close>Let's go</button>
+  </dialog>
   <dialog class="sheet panel how" id="howPanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
     <h3>How it works</h3>
     <p>Every ending is a real, close NBA game: the last ten seasons plus playoff classics back to 2001. You coach the team that was trailing (or tied with the ball) with about a minute left. At each real possession you make the call. Then you see what the real coach did and how it played out, and the game moves on from what actually happened.</p>
@@ -454,7 +480,8 @@ const Engine = (() => {
   }
   const D = s => s.us - s.them;
   const other = side => side==='us'?'them':'us';
-  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look}}
+  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look,lu:s.lu}}
+  function evalOne(s,a,seed,N=2000){ let w=0; for(let i=0;i<N;i++){ const c=clone(s), r=mulberry32(hash(seed,i)); applyUser(c,a,r,null); let g=0; while(!c.over && g++<40) applyUser(c,smart(c),r,null); w+=result(c); } return w/N; }
   // Team shooting relative to league average (1 = average). Set per real game from season stats.
   const R = (s,side) => (s.r&&s.r[side]) || {f2:1,f3:1,ft:FT[side]};
   function add(s,side,p){ if(side==='us') s.us+=p; else s.them+=p; }
@@ -466,7 +493,8 @@ const Engine = (() => {
 
   function shootFTs(s,side,n,rng,ev){
     let made=0,last=false;
-    const ftp=R(s,side).ft;
+    const L=s.lu&&s.lu[side], avgFt=L&&L.p?L.p.reduce((a,r)=>a+r[3],0)/L.p.length:null;
+    const ftp=s._ft||avgFt||R(s,side).ft; s._ft=null;
     for(let i=0;i<n;i++){ last = rng()<ftp; if(last){ add(s,side,1); made++; } }
     log(ev,s,side,`${side==='us'?'You make':'They make'} ${made} of ${n} at the line.`);
     if(!last && rng()<.12 && s.t>0.3){
@@ -485,7 +513,7 @@ const Engine = (() => {
     shootFTs(s,shooter,2,rng,ev);
   }
 
-  function runOffense(s,side,play,tempo,useTO,def,rng,ev,look){
+  function runOffense(s,side,play,tempo,useTO,def,rng,ev,look,who_){
     const P=lookMod(PLAYS[play],play,look), T=TEMPOS[tempo], t0=s.t;
     const heave = t0 < (useTO?0.6:1.2);
     let tu;
@@ -495,8 +523,17 @@ const Engine = (() => {
     else tu=Math.min(Math.max(1.2, 4+rng()*3-(useTO?2.5:0)), t0-0.4);
     tu=Math.max(0.1, Math.min(tu,t0));
 
-    const tf=R(s,side);
-    let two=P.two, m2=P.m2*tf.f2+T.mod+(useTO?.02:0), m3=P.m3*tf.f3+T.mod+(useTO?.02:0), foul=P.foul, to=P.to;
+    // shooting comes from the real five on the floor when we have them, else the team's season numbers
+    const tf=R(s,side), L=s.lu&&s.lu[side];
+    let f2=tf.f2, f3=tf.f3; s._ft=null;
+    if(L&&L.p){
+      const pick = id => L.p.find(r=>r[0]===id);
+      const who = pick(who_ || (play==='three'?L.sh:play==='rim'?L.drv:L.star)) || L.p[0];
+      if(play==='pnr'){ const big=pick(L.big)||who; f2=(who[1]+big[1])/2; f3=Math.max(who[2], (pick(L.sh)||who)[2]); }
+      else { f2=who[1]; f3=who[2]; }
+      s._ft=who[3];
+    }
+    let two=P.two, m2=P.m2*f2+T.mod+(useTO?.02:0), m3=P.m3*f3+T.mod+(useTO?.02:0), foul=P.foul, to=P.to;
     if(def==='deny3'){ m3-=.07; m2+=.03; if(play==='three') to+=.02; if(two>0&&two<1) two=Math.min(1,two+.15); }
     if(def==='trap'){ to+=.12; m2+=.11; m3+=.10; foul+=.04; }
     const rushed = !heave && tu<2.5 && play!=='three';
@@ -558,7 +595,7 @@ const Engine = (() => {
   }
   function applyUser(s,a,rng,ev){
     const look=s.look; s.look=null;   // a look only applies to the possession it was shown on
-    if(s.poss==='us'){ if(a.to) s.toUs--; runOffense(s,'us',a.play,a.tempo,!!a.to,oppDef(s),rng,ev,look); }
+    if(s.poss==='us'){ if(a.to) s.toUs--; runOffense(s,'us',a.play,a.tempo,!!a.to,oppDef(s),rng,ev,look,a.who); }
     else if(a.def==='foul') intentionalFoul(s,'them',rng,ev);
     else { const ai=oppAI(s); if(look&&look.kind==='off'&&LEANS[look.key]) ai.play=LEANS[look.key].force; runOffense(s,'them',ai.play,ai.tempo,false,a.def,rng,ev); }
     return advance(s,rng,ev);
@@ -595,9 +632,11 @@ const Engine = (() => {
     }
     return Object.keys(DEFS).map(def=>({def}));
   }
-  const key = a => a.def ? a.def : `${a.play}-${a.tempo}${a.to?'-to':''}`;
+  const key = a => a.def ? a.def : a.special ? 'ft-'+a.special : `${a.play}-${a.tempo}${a.to?'-to':''}`;
   function label(a){
     if(a.def) return DEFS[a.def].name;
+    if(a.label) return a.label;
+    if(a.special) return FTMISS[a.special].name;
     return `${PLAYS[a.play].name}, ${TEMPOS[a.tempo].name.toLowerCase()}${a.to?', timeout':''}`;
   }
   function evaluate(s,seed,N=2000){
@@ -612,13 +651,33 @@ const Engine = (() => {
       return {a,key:key(a),wp:w/N};
     });
   }
-  return {mulberry32,hash,PLAYS,TEMPOS,DEFS,LOOKS,LEANS,pickLook,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
+  // Special spot: at the line down 2 or 3 with seconds left. Make both, or make one and miss on purpose.
+  const FTMISS = {
+    both:{name:'Make both', desc:'Cut it to one possession and play defense or foul.'},
+    miss:{name:'Miss the 2nd on purpose', desc:'Make the first, then miss off the rim and fight for the rebound.'}};
+  function ftSpecial(s,choice,rng,ev){
+    const ftp=(s.lu&&s.lu.us&&s.lu.us.p?s.lu.us.p[0][3]:FT.us);
+    const first=rng()<ftp; if(first) add(s,'us',1); log(ev,s,'us',first?'First free throw is good.':'First free throw misses.');
+    if(choice==='both'){
+      const second=rng()<ftp; if(second) add(s,'us',1); log(ev,s,'us',second?'Second free throw is good.':'Second free throw misses.');
+      s.poss='them'; s.sc=24; return advance(s,rng,ev);
+    }
+    log(ev,s,'us','Second one off the rim on purpose...');
+    tick(s,1.6);
+    if(rng()<.14){ log(ev,s,'us','Offensive rebound!','big'); const need=-D(s);
+      const three = need>=3, ok = rng() < (three?.18:.42); tick(s,Math.min(s.t,1));
+      if(ok){ add(s,'us',three?3:2); log(ev,s,'us',three?'Tip-out three is GOOD!':'Putback is GOOD!','big'); } else log(ev,s,'us','Putback misses.');
+      s.poss='them'; s.sc=24; return advance(s,rng,ev); }
+    log(ev,s,'them','They grab it.'); s.poss='them'; s.sc=24; return advance(s,rng,ev);
+  }
+  function evalSpecial(s,choice,seed,N=3000){ let w=0; for(let i=0;i<N;i++){ const c=clone(s), r=mulberry32(hash(seed,i)); ftSpecial(c,choice,r,null); let g=0; while(!c.over && g++<40) applyUser(c,smart(c),r,null); w+=result(c); } return w/N; }
+  return {FTMISS,ftSpecial,evalSpecial,evalOne,mulberry32,hash,PLAYS,TEMPOS,DEFS,LOOKS,LEANS,pickLook,D,clone,advance,applyUser,result,smart,conventional,options,key,label,evaluate};
 })();
 
 /* ======================= DATA ======================= */
 // Real endings live in data/<season>.json, listed in data/index.json with the locked daily schedule.
 const DATA_BASE = (location.protocol==='http:'||location.protocol==='https:') ? 'data/' : 'https://crunchtimedaily.com/data/';
-const DATA_V = 307;
+const DATA_V = 963;
 let INDEX = null; const SEASONS = {};
 async function loadIndex(){ if(!INDEX){ const r=await fetch(DATA_BASE+'index.json?v='+DATA_V); INDEX=await r.json(); } return INDEX; }
 async function getEnding(id){
@@ -648,6 +707,9 @@ const SCENARIOS = [
   {diff:-6,t:58.0,poss:'us',  to:2, head:'Down six, 58 seconds', note:'Long odds. How you spend the clock decides how long they are.'},
   {diff: 1,t:46.0,poss:'us',  to:1, head:'Up one, your ball', note:'A score makes it a two-possession game soon. Be patient or be quick?'},
   {diff:-1,t:25.0,poss:'them',to:1, head:'Down one, their ball', note:'They are one shot clock away from icing it.'},
+  {diff:-3,t:3.4,poss:'us',to:0, special:'ft', head:'Down three, at the line for two', note:'3.4 seconds left, no timeouts. Make both, or make one and miss the second on purpose?'},
+  {diff:-2,t:2.1,poss:'us',to:0, special:'ft', head:'Down two, at the line for two', note:'2.1 seconds left. Tie it at the line, or miss on purpose and hunt a putback for the win?'},
+  {diff:-3,t:6.8,poss:'us',to:1, special:'ft', head:'Down three, two shots, 6.8 left', note:'One timeout left. Make both and foul, or get cute with a miss?'},
 ];
 const LAUNCH = new Date(2026,9,15);
 function todayNumber(){ const n=new Date(); const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.max(1, Math.round((a-LAUNCH)/86400000)+1); }
@@ -658,6 +720,8 @@ function todayNumber(){ const n=new Date(); const a=new Date(n.getFullYear(),n.g
 const TEAMS = {ATL:['Hawks','#C8102E','#FDB927'],BOS:['Celtics','#007A33','#FFFFFF'],BKN:['Nets','#000000','#FFFFFF'],CHA:['Hornets','#1D1160','#00788C'],CHI:['Bulls','#CE1141','#000000'],CLE:['Cavaliers','#860038','#FDBB30'],DAL:['Mavericks','#00538C','#B8C4CA'],DEN:['Nuggets','#0E2240','#FEC524'],DET:['Pistons','#C8102E','#1D42BA'],GSW:['Warriors','#1D428A','#FFC72C'],HOU:['Rockets','#CE1141','#C4CED4'],IND:['Pacers','#002D62','#FDBB30'],LAC:['Clippers','#C8102E','#1D428A'],LAL:['Lakers','#552583','#FDB927'],MEM:['Grizzlies','#5D76A9','#12173F'],MIA:['Heat','#98002E','#F9A01B'],MIL:['Bucks','#00471B','#EEE1C6'],MIN:['Timberwolves','#0C2340','#78BE20'],NOP:['Pelicans','#0C2340','#C8102E'],NYK:['Knicks','#006BB6','#F58426'],OKC:['Thunder','#007AC1','#EF3B24'],ORL:['Magic','#0077C0','#C4CED4'],PHI:['76ers','#006BB6','#ED174C'],PHX:['Suns','#1D1160','#E56020'],POR:['Trail Blazers','#E03A3E','#000000'],SAC:['Kings','#5A2D81','#63727A'],SAS:['Spurs','#000000','#C4CED4'],TOR:['Raptors','#CE1141','#000000'],UTA:['Jazz','#002B5C','#F9A01B'],WAS:['Wizards','#002B5C','#E31837'],SEA:['SuperSonics','#00653A','#FFC200'],NJN:['Nets','#002A60','#CD1041'],CHB:['Bobcats','#F26532','#2C5697'],NOH:['Hornets','#00778B','#280071'],NOK:['Hornets','#00778B','#280071'],VAN:['Grizzlies','#00B2A9','#E43C40']};
 const teamOf = (ab, full) => { const t=TEAMS[ab]; return t?{ab,nick:full?nickOf(ab,full):t[0],c1:t[1],c2:t[2]}:{ab,nick:full?nickOf(ab,full):ab,c1:'#333',c2:'#999'}; };
 const recTxt = r => r?`${r[0]}-${r[1]}`:'';
+const KIND = {lead:'Protect the lead', trail:'Comeback', tied:'Last shot'};
+const kindOf = g => g && (KIND[g.kind] || (g.steps&&g.steps[0]&&Engine.D(g.steps[0].state)>0?KIND.lead:KIND.trail));
 const coachName = g => (g && g.coach && g.coach.us) || null;
 const coachLast = g => { const n=coachName(g); return n ? n.split(' ').slice(-1)[0] : 'the real coach'; };
 
@@ -712,6 +776,7 @@ function setMode(m){
   $('simBtn').classList.toggle('solid',m==='sim');
 }
 function resetView(){
+  try{ Court.setLineup(null); }catch(e){}
   document.querySelector('.court-wrap').hidden=false; $('situation').hidden=false;
   $('pbp').innerHTML=''; $('result').hidden=true; $('panel').hidden=false; document.querySelectorAll('dialog.sheet[open]').forEach(d=>d.close());
 }
@@ -727,12 +792,28 @@ const Court = (() => {
   const el=(side,i)=>$('cPlayers')&&$('cPlayers').querySelector(`g[data-side="${side}"][data-i="${i}"]`);
   const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), dist=(a,b)=>{ const x=hex(a),y=hex(b); return Math.hypot(x[0]-y[0],x[1]-y[1],x[2]-y[2]); };
   const other=s=>s==='us'?'them':'us';
+  let names={us:[],them:[]}, ids={us:[],them:[]};
+  // Real five: order by position so the point guard is up top and bigs are near the rim.
+  const POS_ORDER={PG:0,G:0,SG:1,'G-F':2,SF:2,F:3,'F-G':2,PF:3,'F-C':4,'C-F':4,C:4};
+  function setLineup(lu){
+    for(const side of ['us','them']){
+      const list=(lu&&lu[side])||[];
+      const withPos=list.map(id=>({id, pos:(G&&G.g&&G.g.pstats&&G.g.pstats[id]&&G.g.pstats[id].pos)||'', nm:(G&&G.g&&G.g.players&&G.g.players[id])||''}));
+      withPos.sort((a,b)=>(POS_ORDER[a.pos.split('-')[0]]??2)-(POS_ORDER[b.pos.split('-')[0]]??2));
+      // slots: 0 top (PG), 1 wing (SG), 2 wing (SF), 3 corner (PF), 4 dunker (C)
+      ids[side]=withPos.map(p=>p.id); names[side]=withPos.map(p=>p.nm.replace(/^[A-Z]\. /,''));
+    }
+    build();
+  }
+  function slotOfName(side, txtName){ const last=(txtName||'').replace(/^[A-Z]\. /,''); const i=names[side].findIndex(n=>n&&n===last); return i; }
   function setColors(us,them){ if(dist(us[0],them[0])<90) them=[them[1],them[0]]; if(dist(us[0],them[0])<90) them=['#E9ECEF','#16191D']; const key=us.join()+them.join(); if(key===cols.key && $('cPlayers').childNodes.length) return; cols={us,them,key}; build(); }
   function build(){
     const g=$('cPlayers'); if(!g) return; g.innerHTML='';
     for(const side of ['them','us']) for(let i=0;i<5;i++){
       const p=document.createElementNS(NS,'g'); p.setAttribute('class','c-p'); p.dataset.side=side; p.dataset.i=i;
-      p.innerHTML = side==='us' ? `<circle r="12" fill="${cols.us[0]}" stroke="${cols.us[1]}"/><text>${i+1}</text>` : `<circle r="11" fill="rgba(0,0,0,.2)" stroke="${cols.them[0]}" stroke-width="4"/>`;
+      const nm=names[side][i]||'';
+      p.innerHTML = (side==='us' ? `<circle r="12" fill="${cols.us[0]}" stroke="${cols.us[1]}"/><text>${nm?'':i+1}</text>` : `<circle r="11" fill="rgba(0,0,0,.2)" stroke="${cols.them[0]}" stroke-width="4"/>`)
+        + (nm?`<text class="c-pn" y="22">${nm.length>11?nm.slice(0,10)+'.':nm}</text>`:'');
       g.appendChild(p);
     }
     render();
@@ -808,7 +889,8 @@ const Court = (() => {
     name(nameFrom(e.text||'')); busy++; setTimeout(()=>busy--, FAST?0:900);
     const d=other(off);
     if(c.k==='shot'){
-      const [x,y]=spot(c.dist, e.text+e.t); holder=c.dist<=4?4:c.pts===3?(x<250?1:2):0;
+      const [x,y]=spot(c.dist, e.text+e.t); const named=slotOfName(off, nameFrom(e.text||''));
+      holder= named>=0 ? named : c.dist<=4?4:c.pts===3?(x<250?1:2):0;
       pos[off][holder]=[x,y]; shadow([holder]); pos[d][holder]=[x+(RIM.x-x)*.1, y+(RIM.y-y)*.1-4]; render(); ballTo(x,y-14);
       setTimeout(()=>ballTo(RIM.x,RIM.y), FAST?0:200);
       setTimeout(()=>{ if(c.made) flash('+'+c.pts,'#FFB21E'); else { ballTo(RIM.x+(seedf(e.t)>.5?42:-42),RIM.y+46); flash('Miss','#fff'); } }, FAST?0:440);
@@ -823,7 +905,7 @@ const Court = (() => {
     else if(c.k==='foul'){ pos[d][holder]=[pos[off][holder][0]+8,pos[off][holder][1]-8]; render(); flash('Foul','#FF4433'); }
     else if(c.k==='to'){ flash('Timeout','#fff'); }
   }
-  return {setColors, setOffense, play, act, name, startIdle, stopIdle, draw:setOffense};
+  return {setColors, setLineup, setOffense, play, act, name, startIdle, stopIdle, draw:setOffense};
 })();
 
 /* ---------- board ---------- */
@@ -881,22 +963,46 @@ function renderPanel(k){
     const tempos=Object.entries(Engine.TEMPOS).map(([v,p])=>radio('tempo',v,p.name,p.desc,'',v==='normal')).join('');
     const lk=s.look&&Engine.LOOKS[s.look.key];
     P.innerHTML = `${lk?`<div class="look"><span>Defense</span><b>${lk.name}</b><small>${lk.tip}</small></div>`:''}<h3>Your call · offense</h3><div class="opts">${plays}</div>
+      ${s.lu&&s.lu.us&&s.lu.us.p?`<h3>Who takes it</h3><div class="who" id="whoRow"></div>`:''}
+      ${G.kind==='real'?floorCard(s):''}
       <h3>Tempo</h3><div class="seg">${tempos}</div>
       ${s.toUs>0?`<label class="toggle"><input type="checkbox" id="useTo"> Call timeout first: advance the ball and draw up the set</label>`:''}
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${s.r&&s.r.us?`${esc(G.usAb)} shot ${s.r.us.p3}% from three this season (league ${s.r.us.lg3}%).`:'Shot clock is 24 at the start of the possession.'}</span></div>`;
   } else {
     const defs=Object.entries(Engine.DEFS).map(([v,p],i)=>radio('def',v,p.name,p.desc,'',i===0)).join('');
     const ln=s.look&&Engine.LEANS[s.look.key];
-    P.innerHTML = `${ln?`<div class="look off"><span>Their offense</span><b>${ln.name}</b><small>${ln.tip}</small></div>`:''}<h3>Your call · defense</h3><div class="opts">${defs}</div>
+    P.innerHTML = `${ln?`<div class="look off"><span>Their offense</span><b>${ln.name}</b><small>${ln.tip}</small></div>`:''}<h3>Your call · defense</h3><div class="opts">${defs}</div>${G.kind==='real'?floorCard(s):''}
       <div class="call"><button class="btn" id="callBtn" type="button">Call it</button><span class="hint">${G.themAb} ${Engine.D(s)<0?'lead':Engine.D(s)>0?'trail':'are tied'}; expect them to play the clock that way.</span></div>`;
   }
+  if(k==='off' && s.lu&&s.lu.us&&s.lu.us.p) wireWho(s);
   $('callBtn').addEventListener('click',()=> G.kind==='real' ? callReal(k) : callSim(k));
+}
+// Pick the shooter from the real five. The default follows the play: best shooter for a spot-up three,
+// top scorer for an isolation or pick-and-roll, the best driver for a rim attack.
+function playerName(id){ return (G&&G.g&&G.g.players&&G.g.players[id]) || id; }
+function pstatOf(id){ return (G&&G.g&&G.g.pstats&&G.g.pstats[id]) || null; }
+function floorCard(s){
+  const f=s.floor||(G.g&&G.g.steps&&G.g.steps[G.i]&&G.g.steps[G.i].state.floor); if(!f||!G.g.pstats) return '';
+  const pc=x=>x==null?'–':(x*100).toFixed(0)+'%', row=id=>{ const p=G.g.pstats[id]||{}; return `<tr><td>${esc(playerName(id))}<small> ${esc(p.pos||'')}</small></td><td>${p.pts!=null?p.pts.toFixed(1):'–'}</td><td>${pc(p.fg3)}</td><td>${pc(p.fg2)}</td><td>${pc(p.ft)}</td></tr>`; };
+  const tbl=(side,ab)=>`<table class="fl"><tr><th>${esc(ab)}</th><th>PPG</th><th>3P%</th><th>2P%</th><th>FT%</th></tr>${(f[side]||[]).map(row).join('')}</table>`;
+  return `<details class="floor"><summary>On the floor · season stats</summary>${tbl('us',G.usAb)}${tbl('them',G.themAb)}</details>`;
+}
+function wireWho(s){
+  const L=s.lu.us, row=$('whoRow');
+  const def = play => play==='three'?L.sh:play==='rim'?L.drv:L.star;
+  const stat = (id,play) => { const p=pstatOf(id); if(!p) return ''; const f=x=>x==null?'–':(x*100).toFixed(0)+'%';
+    return play==='three'?`${f(p.fg3)} 3P`:play==='rim'?`${f(p.fg2)} 2P · ${f(p.ft)} FT`:`${p.pts!=null?p.pts.toFixed(1):'–'} PPG`; };
+  const draw = () => { const play=document.querySelector('input[name=play]:checked').value, cur=row.dataset.sel||def(play);
+    row.innerHTML = L.p.map(r=>`<button type="button" class="wh${r[0]===cur?' on':''}" data-id="${r[0]}"><b>${esc(playerName(r[0]))}</b><small>${stat(r[0],play)}</small></button>`).join('');
+    row.querySelectorAll('.wh').forEach(b=>b.addEventListener('click',()=>{ row.dataset.sel=b.dataset.id; draw(); })); };
+  document.querySelectorAll('input[name=play]').forEach(i=>i.addEventListener('change',()=>{ delete row.dataset.sel; draw(); }));
+  draw();
 }
 function readAction(k){
   if(k==='off'){
-    return {play:document.querySelector('input[name=play]:checked').value,
-            tempo:document.querySelector('input[name=tempo]:checked').value,
-            to:!!($('useTo')&&$('useTo').checked)};
+    const play=document.querySelector('input[name=play]:checked').value, row=$('whoRow'), L=G.s.lu&&G.s.lu.us;
+    let who; if(row&&L){ who=row.dataset.sel || (play==='three'?L.sh:play==='rim'?L.drv:L.star); }
+    return {play, tempo:document.querySelector('input[name=tempo]:checked').value, to:!!($('useTo')&&$('useTo').checked), who};
   }
   return {def:document.querySelector('input[name=def]:checked').value};
 }
@@ -915,7 +1021,12 @@ function grade(snap,a,seed,coachAct){
   const evals=Engine.evaluate(snap, seed);
   const byKey=Object.fromEntries(evals.map(e=>[e.key,e]));
   const best=evals.reduce((m,e)=>e.wp>m.wp?e:m);
-  return {snap, a, wp:byKey[Engine.key(a)].wp, best, coach:coachAct, coachWp:byKey[Engine.key(coachAct)].wp, evals};
+  let wp=byKey[Engine.key(a)].wp, cwp=byKey[Engine.key(coachAct)].wp;
+  if(a.who && snap.lu) wp=Engine.evalOne(snap,a,seed);
+  if(coachAct.who && snap.lu) cwp=Engine.evalOne(snap,coachAct,seed);
+  if(wp>best.wp) best={a,key:Engine.key(a),wp};
+  if(cwp>best.wp) best={a:coachAct,key:Engine.key(coachAct),wp:cwp};
+  return {snap, a, wp, best, coach:coachAct, coachWp:cwp, evals};
 }
 // One plain sentence on why the best call beat yours.
 function whyLine(d){
@@ -945,6 +1056,22 @@ function whyCore(d){
   if(b.play==='pnr') return 'The pick-and-roll gives the best mix of open twos and kick-out threes.';
   if(b.play==='iso') return 'Your star isolation draws fouls and avoids turnovers late.';
   return `${Engine.label(b)} had the better odds from this spot.`;
+}
+const PICK_LBL={rim:'Attack the rim',three:'Spot-up three',iso:'Star isolation',pnr:'Pick-and-roll',straight:'Play it straight',deny3:'Run them off the line',trap:'Trap',foul:'Foul'};
+function showCrowd(r, mine){
+  const el=$('crowd'); if(!el||!r||!r.split) return;
+  const rows=Object.entries(r.split).sort((a,b)=>b[1]-a[1]);
+  el.hidden=false;
+  el.innerHTML = r.total<5 ? `<b>Crowd:</b> you're one of the first ${r.total} to call this one today.` :
+    `<b>What everyone called</b> (${r.total.toLocaleString()} players)<div class="cr-rows">${rows.map(([k,v])=>`<div class="cr${k===mine?' me':''}"><span>${PICK_LBL[k]||k}</span><i style="width:${v}%"></i><b>${v}%</b></div>`).join('')}</div>`;
+}
+// The classic late-game arguments get a short, honest note instead of a verdict.
+function debateNote(d){
+  const s=d.snap, diff=Engine.D(s);
+  if(s.poss==='them' && diff===3 && s.t<=14) return `<div class="debate">🗣 <b>The foul-up-3 debate.</b> Fouling trades a possible tying three for two free throws and a scramble on the miss. The math is close and depends on time left and rebounding, so coaches still split on it.</div>`;
+  if(s.poss==='us' && s.t>=28 && s.t<=44 && diff<=0) return `<div class="debate">🗣 <b>The 2-for-1.</b> With about 35 seconds left, shooting early can get you the last possession too. The catch is a rushed look now. Compare the quick tempo with a normal set above.</div>`;
+  if(s.poss==='us' && s.toUs>0 && s.t<=24 && diff<0) return `<div class="debate">🗣 <b>Timeout or attack?</b> A timeout advances the ball and draws up a set, but lets the defense set up too.</div>`;
+  return '';
 }
 function optionsTable(d){
   const rows=[...d.evals].sort((x,y)=>y.wp-x.wp);
@@ -993,7 +1120,7 @@ async function stepReal(){
   const st=g.steps[G.i];
   G.s={...st.state, sc:24, over:false, r:g.rates};
   G.s.look=Engine.pickLook(Engine.hash(g.id,'look',G.i), G.s);
-  renderBoard(); renderSituation(); Court.setOffense(G.s.poss); Court.name(''); Court.startIdle();
+  renderBoard(); Court.setLineup(st.state.floor||null); renderSituation(); Court.setOffense(G.s.poss); Court.name(''); Court.startIdle();
   if(G.decisions.length===0 && !G.introDone){ renderIntro(st); return; }
   if(G.decisions.length===0) $('sitNote').textContent += ` You're coaching the ${teamOf(g.usAb,g.usFull).nick}.`;
   renderPanel(st.state.poss==='us'?'off':'def');
@@ -1006,7 +1133,7 @@ function renderIntro(st){
   document.querySelector('.court-wrap').hidden=true; $('situation').hidden=true;
   const P=$('panel'); P.hidden=false;
   P.innerHTML=`<div class="intro">
-    <div class="ig-kicker">${G.mode==='daily'?`Today's ending · Daily #${G.day}`:G.mode==='survival'?`Survival · game ${SURV.run+1}`:g.classic?`Greatest Endings · ${esc(g.classic)}`:'Archive'}</div>
+    <div class="ig-kicker">${G.mode==='daily'?`Today's ending · ${kindOf(g)} · No. ${G.day}`:G.mode==='survival'?`Survival · game ${SURV.run+1}`:g.classic?`Greatest Endings · ${esc(g.classic)}`:'Archive'}</div>
     <div class="ig-sub">${esc(g.title.replace(/,? (\w+ \d+, \d{4})$/,' · $1'))}</div>
     <div class="ig-big">${big}</div>
     <div class="ig-clock">${fmt(s.t)} left in the game</div>
@@ -1019,11 +1146,12 @@ function renderIntro(st){
 }
 function coachAction(real, s){
   if(real.def) return {def:real.def};
-  return {play:real.play, tempo:real.tempo, to:!!real.to && s.toUs>0};
+  const L=s.lu&&s.lu.us, who=real.who && L && L.p && L.p.some(r=>r[0]===real.who) ? real.who : undefined;
+  return {play:real.play, tempo:real.tempo, to:!!real.to && s.toUs>0, who};
 }
 function describeReal(real, s){
   if(real.def) return real.def==='foul' ? 'Fouled on purpose' : 'Defended (no foul)';
-  return Engine.label(coachAction(real,s));
+  const ca=coachAction(real,s); return Engine.label(ca)+(ca.who?` · ${playerName(ca.who)}`:'');
 }
 async function callReal(k){
   if(G.busy) return; G.busy=true;
@@ -1045,16 +1173,20 @@ async function callReal(k){
     <div class="reveal">
       <div class="rv-head"><i class="sq ${sq}"></i><b>${SQWORD[sq]}</b></div>
       <div class="rv-rows">
-        <div class="rv me"><span class="who">You</span><span class="what">${esc(Engine.label(a))}</span><span class="wp">${pct(d.wp)}</span></div>
+        <div class="rv me"><span class="who">You</span><span class="what">${esc(Engine.label(a))}${a.who?` · ${esc(playerName(a.who))}`:''}</span><span class="wp">${pct(d.wp)}</span></div>
         <div class="rv"><span class="who">${esc(coachName(g)||'Real coach')}</span><span class="what">${esc(d.realLabel)}</span><span class="wp">${pct(d.coachWp)}</span></div>
         ${same?'':`<div class="rv"><span class="who">Best</span><span class="what">${esc(Engine.label(d.best.a))}</span><span class="wp">${pct(d.best.wp)}</span></div>`}
       </div>
       <div class="why">${esc(whyLine(d))}</div>
       <div class="hint">Win odds from this exact spot, 2,000 simulated playouts per option.</div>
+      <div class="crowd" id="crowd" hidden></div>
+      ${debateNote(d)}
       ${optionsTable(d)}
+      <a class="dispute" href="mailto:george@trychartread.com?subject=${encodeURIComponent(`Grade dispute: ${g.id} possession ${G.i+1}`)}&body=${encodeURIComponent('What do you think the grade got wrong?\n\n')}">Disagree with this grade?</a>
       <div class="happened"><div class="hd">What actually happened</div><ul>${lines.map(l=>`<li><span class="tt">${fmt(l.t)}</span>${esc(l.txt)}</li>`).join('')}</ul></div>
       <div class="call"><button class="btn" id="nextBtn" type="button">${isLast?'See the final':'Next possession'}</button></div>
     </div>`;
+  if(G.mode==='daily' && PID) api('/pick',{day:G.day,step:G.i,pid:PID,pick:a.def||a.play}).then(r=>showCrowd(r, a.def||a.play));
   const nb=$('nextBtn'); nb.disabled=true;
   await acting;
   await pushEvents(realLines(st), false);
@@ -1094,12 +1226,13 @@ async function finishReal(){
 function startSim(){
   const seed=(Math.random()*2**32)>>>0, sc=SCENARIOS[seed%SCENARIOS.length];
   const base = 96 + (seed%14);
-  const s = {us:base+sc.diff, them:base, t:sc.t, sc:24, poss:sc.poss, toUs:sc.to, over:false};
+  const s = {us:base+sc.diff, them:base, t:sc.t, sc:24, poss:sc.poss, toUs:sc.to, over:false, special:sc.special||null};
   G = {kind:'sim', mode:'sim', day:DAY, sc, seed, s, startTo:sc.to, decisions:[], busy:false, usAb:'You', themAb:'Opp'};
   resetView(); setMode('sim'); setWP(null);
   $('matchup').textContent='Free play · invented situation';
   $('sitHead').textContent=sc.head; $('sitNote').textContent=sc.note;
   pushEvents([{t:s.t,side:'',text:`Free play: ${sc.head.toLowerCase()}.`,us:s.us,them:s.them,cls:'note'}], true);
+  if(s.special){ pushEvents([],true); renderBoard(); Court.setOffense('us'); Court.startIdle(); renderSpecial(); return; }
   const ev=[]; const k=Engine.advance(s, Engine.mulberry32(Engine.hash(seed,'pre')), ev);
   pushEvents(ev,true);
   renderBoard(); Court.setOffense(s.poss); Court.startIdle(); simNext(k, true);
@@ -1134,6 +1267,27 @@ async function callSim(k){
   }
   simNext(nk);
 }
+function renderSpecial(){
+  const P=$('panel'); P.hidden=false;
+  P.innerHTML=`<div class="look off"><span>Special spot</span><b>At the line</b><small>The intentional-miss decision. Rebounds off a deliberate miss go to the offense about 14% of the time.</small></div>
+    <h3>Your call · free throws</h3><div class="opts">${Object.entries(Engine.FTMISS).map(([v,o],i)=>radio('ftc',v,o.name,o.desc,'',i===0)).join('')}</div>
+    <div class="call"><button class="btn" id="callBtn" type="button">Call it</button></div>`;
+  $('callBtn').addEventListener('click',async()=>{
+    if(G.busy) return; G.busy=true; lockPanel('Grading…'); await new Promise(r=>setTimeout(r,30));
+    const choice=document.querySelector('input[name=ftc]:checked').value, snap=Engine.clone(G.s);
+    const seed=Engine.hash(G.seed,'ft');
+    const wps={both:Engine.evalSpecial(snap,'both',seed), miss:Engine.evalSpecial(snap,'miss',seed)};
+    const bestK=wps.both>=wps.miss?'both':'miss';
+    const lbl=k=>Engine.FTMISS[k].name;
+    const d={snap, a:{play:'ft',tempo:'',special:choice}, wp:wps[choice], best:{a:{special:bestK},key:bestK,wp:wps[bestK]}, coach:{special:'both'}, coachWp:wps.both, evals:[], realLabel:lbl('both')};
+    d.a.label=lbl(choice); d.best.a.label=lbl(bestK); G.decisions.push(d); setWP(d.wp);
+    const ev=[]; Engine.ftSpecial(G.s, choice, Engine.mulberry32(Engine.hash(G.seed,'ftplay',choice)), ev);
+    let g=0; const rng=Engine.mulberry32(Engine.hash(G.seed,'rest')); while(!G.s.over && g++<40) Engine.applyUser(G.s, Engine.smart(G.s), rng, ev);
+    await pushEvents(ev,false); renderBoard(); G.busy=false;
+    if(G.s.over && Engine.D(G.s)===0){ const otWin=Engine.mulberry32(Engine.hash(G.seed,'ot'))()<.5, o=5+(G.seed%6); G.s.us+=otWin?o+3:o; G.s.them+=otWin?o:o+3; await pushEvents([{t:0,side:'',text:`End of regulation, tied. Overtime is a coin flip: ${otWin?'you win it':'you lose it'}.`,us:G.s.us,them:G.s.them,cls:'note'}],false); renderBoard(); }
+    finishSim();
+  });
+}
 function finishSim(){
   const s=G.s; renderBoard(); setWP(null);
   $('panel').hidden=true;
@@ -1155,7 +1309,10 @@ function finishSim(){
 function bumpStats(d){
   const st=store.get('crunchtime:v2:stats')||{played:0,streak:0,best:0,lastDay:0,beat:0,sum:0};
   st.played++; st.sum+=d.score; if(d.score>d.coachScore) st.beat++;
-  st.streak = st.lastDay===d.day-1 ? st.streak+1 : 1; st.lastDay=d.day; st.best=Math.max(st.best,st.streak);
+  // One free streak freeze every 30 days covers a single missed day.
+  const canFreeze = st.lastDay===d.day-2 && (!st.freezeDay || d.day-st.freezeDay>=30);
+  if(canFreeze){ st.freezeDay=d.day; d.froze=true; }
+  st.streak = (st.lastDay===d.day-1 || canFreeze) ? st.streak+1 : 1; st.lastDay=d.day; st.best=Math.max(st.best,st.streak);
   store.set('crunchtime:v2:stats',st);
 }
 function verdict(d){
@@ -1186,14 +1343,27 @@ function shareText(d){
     if(d.coachLike) lines.push(`Coached like ${d.coachLike}`);
     lines.push(verdict(d));
     if(d.phil) lines.push('🧘 Found Phil Jackson #FindPhil');
-    if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak`);
+    if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak${d.froze?' (🧊 freeze used)':''}`);
     lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.grid}`);
-    lines.push('Can you beat me? https://crunchtimedaily.com');
+    let nm=''; try{ nm=localStorage.getItem('crunchtime:name')||''; }catch(e){}
+    lines.push(`Can you beat me? https://crunchtimedaily.com/d/${d.day}${d.mode==='daily'?`?s=${d.score}${nm?`&n=${encodeURIComponent(nm)}`:''}`:''}`);
     return lines.join('\n');
   }
   const head = d.mode==='daily'?`Crunch Time Daily #${d.day} 🏀`:d.kind==='real'?'Crunch Time Daily (archive) 🏀':'Crunch Time Daily (free play) 🏀';
   const game = d.kind==='real'?`\n${teamOf(d.usAb,d.usFull).nick} vs ${teamOf(d.themAb,d.themFull).nick}, real final ${d.us}-${d.them}`:'';
   return `${head}${game}\nMe ${d.score} · ${d.kind==='real'?'Real coach':'Conventional coach'} ${d.coachScore}\n${verdict(d)}${d.pct!=null&&d.players>=10?`\nBetter than ${d.pct}% of players`:''}\n${d.grid}\ncrunchtimedaily.com`;
+}
+// Win chance after each call: yours, the best call's, and the real coach's. Shown only after the game.
+function wpChart(d){
+  const W=320,H=130,P=22, n=d.recap.length, xs=i=>P+(W-2*P)*(n===1?0:i/(n-1)), ys=v=>H-P-(H-2*P)*v;
+  const line=(k,c,dash)=>`<polyline fill="none" stroke="${c}" stroke-width="2.5" ${dash?'stroke-dasharray="5 4"':''} points="${d.recap.map((r,i)=>`${xs(i)},${ys(r[k])}`).join(' ')}"/>`;
+  let worst=-1, wl=0; d.recap.forEach((r,i)=>{ const l=r.bestWp-r.youWp; if(l>wl){ wl=l; worst=i; } });
+  return `<div><svg class="wpchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Win chance by possession">
+    ${[0,.5,1].map(v=>`<line x1="${P}" x2="${W-P}" y1="${ys(v)}" y2="${ys(v)}" stroke="currentColor" opacity=".12"/><text x="2" y="${ys(v)+3}">${v*100}%</text>`).join('')}
+    ${line('bestWp','#2F9A5A',true)}${line('coachWp','#9AA3AD')}${line('youWp','#FF6B33')}
+    ${d.recap.map((r,i)=>`<circle cx="${xs(i)}" cy="${ys(r.youWp)}" r="3.5" fill="#FF6B33"/><text x="${xs(i)-3}" y="${H-6}">${i+1}</text>`).join('')}
+  </svg><div class="wp-legend"><span><i style="background:#FF6B33"></i>You</span><span><i style="background:#2F9A5A"></i>Best call</span><span><i style="background:#9AA3AD"></i>${esc(d.coachLast||'Real coach')}</span></div>
+  ${worst>=0&&wl>=.02?`<div class="hint">Your costliest call: possession ${worst+1}, ${Math.round(wl*100)}% of win chance.</div>`:'<div class="hint">No costly calls. Clean game.</div>'}</div>`;
 }
 function renderResult(d){
   const R=$('result'); R.hidden=false;
@@ -1217,6 +1387,7 @@ function renderResult(d){
     </div>`}
     ${d.coachPct!=null?`<div class="hint" style="font-size:14px;color:var(--ink)">Better than <b>${d.coachPct}%</b> of real NBA coaches in these spots${d.coachLike?` · Coached like <b>${esc(d.coachLike)}</b>`:''}</div>`:''}
     <div class="pct" id="pctLine" ${d.pct!=null?'':'hidden'}>${d.pct!=null?`Better than <b>${d.pct}%</b> of players · Rank #${d.rank} of ${d.players}`:''}</div>
+    ${d.kind==='real'&&d.recap.length>1?wpChart(d):''}
     <div class="grid-emoji" aria-label="Decision grades">${d.grid||'No calls needed'}</div>
     <div class="hint">${d.kind==='real'?`Real final: ${esc(d.usAb)} ${d.us}, ${esc(d.themAb)} ${d.them}. `:`${d.won?'You won':'You lost'} ${d.us}–${d.them}. `}50 is solid, 90+ is elite. The grade measures calls, not bounces.</div>
     ${st?`<div class="stats"><span><b>${st.played}</b>Played</span><span><b>${st.streak}</b>Streak</span><span><b>${st.best}</b>Best streak</span><span><b>${st.played?Math.round(st.sum/st.played):0}</b>Avg grade</span><span><b>${st.beat}</b>Beat coach</span></div>`:''}
@@ -1266,8 +1437,9 @@ async function showSavedDaily(saved){
 }
 
 /* ---------- pro ---------- */
-const isPro = () => { try{ return !!localStorage.getItem('crunchtime:pro'); }catch(e){ return false; } };
-function proBadge(){ $('proBtn').classList.toggle('on', isPro()); $('proBtn').textContent = isPro()?'Pro ✓':'Pro'; }
+// In the iPhone app everything is unlocked (no web checkout inside the app, per App Store rules).
+const isPro = () => { if(NATIVE) return true; try{ return !!localStorage.getItem('crunchtime:pro'); }catch(e){ return false; } };
+function proBadge(){ if(NATIVE){ $('proBtn').hidden=true; return; } $('proBtn').classList.toggle('on', isPro()); $('proBtn').textContent = isPro()?'Pro ✓':'Pro'; }
 function openPro(reason){
   const B=$('proBody'); openSheet('proPanel');
   let code=''; try{ code=localStorage.getItem('crunchtime:pro')||''; }catch(e){}
@@ -1370,15 +1542,24 @@ function renderArchive(){
   const classics=Object.keys(INDEX.games).filter(id=>INDEX.games[id].c).sort((a,b)=>b.localeCompare(a)).map(id=>({id, tag:INDEX.games[id].c, classic:true}));
   const words = x => x[0]===0?'Tied':x[0]>0?`Up ${x[0]}`:`Down ${-x[0]}`;
   const row = it => { const g=INDEX.games[it.id], sv=it.day?store.get(SAVE_KEY(it.day)):null, locked=!pro && !it.free;
-    return `<button class="game${locked?' locked':''}" type="button" data-id="${it.id}" data-locked="${locked?1:''}"><span><span class="gt">${it.classic?esc(it.tag):`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))}`}</span><br><span class="gd">${it.classic?`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))} · `:''}${esc(shortDate(g.d))} · start ${words(g.x)}, ${fmt(g.x[1])}</span></span><span class="gs">${locked?'<span class="lock">PRO</span>':it.classic?'':esc(it.tag)}${sv?` · ${sv.score}`:''}</span></button>`; };
+    return `<button class="game${locked?' locked':''}" type="button" data-id="${it.id}" data-locked="${locked?1:''}"><span><span class="gt">${it.classic?esc(it.tag):`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))}`}</span><br><span class="gd">${it.classic?`${esc(nickOf(g.u,g.un))} vs ${esc(nickOf(g.v,g.vn))} · `:''}${esc(shortDate(g.d))} · ${KIND[g.k]||''} · ${words(g.x)}, ${fmt(g.x[1])}</span></span><span class="gs">${locked?'<span class="lock">PRO</span>':it.classic?'':esc(it.tag)}${sv?` · ${sv.score}`:''}</span></button>`; };
   L.innerHTML = (classics.length?`<div class="sec">Greatest Endings</div>${classics.map(row).join('')}`:'')
     + `<div class="sec">Past dailies</div>${past.length?past.map(row).join(''):'<p class="hint">Daily #1 is today. Past dailies show up here.</p>'}`
     + `<div class="sec">Playoff classics & practice</div>${prac.map(row).join('')}`;
   L.querySelectorAll('.game').forEach(b=>b.addEventListener('click',async()=>{ if(b.dataset.locked){ openPro('That ending is part of Pro.'); return; } startReal('archive',await getEnding(b.dataset.id)); }));
 }
 
-async function playDaily(){ await loadIndex(); const sv=store.get(SAVE_KEY(DAY)); sv?showSavedDaily(sv):startReal('daily', await getEnding(dailyId(DAY))); }
+const CHALLENGE = (()=>{ const q=new URLSearchParams(location.search), c=+q.get('c'); return c? {day:c, score:+q.get('s')||null, name:(q.get('n')||'').slice(0,18)} : null; })();
+async function playDaily(){ await loadIndex();
+  if(CHALLENGE && CHALLENGE.day>=1 && CHALLENGE.day<DAY && !store.get(SAVE_KEY(CHALLENGE.day))){
+    const c=CHALLENGE; history.replaceState(null,'',location.pathname);
+    await startReal('archive', await getEnding(dailyId(c.day)));
+    $('sitNote').insertAdjacentHTML('afterend',`<div class="challenge">${c.name?esc(c.name):'A friend'} scored <b>${c.score??'?'}</b> on Daily #${c.day}. Can you beat it?</div>`);
+    return;
+  }
+  if(CHALLENGE && CHALLENGE.score){ history.replaceState(null,'',location.pathname); setTimeout(()=>{ const n=$('sitNote'); if(n) n.insertAdjacentHTML('afterend',`<div class="challenge">${CHALLENGE.name?esc(CHALLENGE.name):'A friend'} scored <b>${CHALLENGE.score}</b> today. Can you beat it?</div>`); },400); } const sv=store.get(SAVE_KEY(DAY)); sv?showSavedDaily(sv):startReal('daily', await getEnding(dailyId(DAY))); }
 $('dailyBtn').textContent=`Daily #${DAY}`;
+$('dayNo').textContent=`No. ${DAY} · ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 $('dailyBtn').addEventListener('click',playDaily);
 $('archiveBtn').addEventListener('click',async()=>{ await loadIndex(); renderArchive(); openSheet('archivePanel'); });
 $('simBtn').addEventListener('click',startSim);
@@ -1415,6 +1596,7 @@ function placeAd(where, slot){ if(!ADSENSE||NATIVE||!slot) return; const el=$(wh
 }catch(e){} })();
 track('visit');
 proBadge(); claimPro();
+try{ if(!localStorage.getItem('crunchtime:welcomed') && !CHALLENGE){ localStorage.setItem('crunchtime:welcomed','1'); setTimeout(()=>openSheet('welcome'),600); } }catch(e){}
 playDaily();
 </script>
 </body>
