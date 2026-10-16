@@ -92,6 +92,18 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .c-name{font:700 14px var(--f-body);fill:#fff;paint-order:stroke;stroke:#0C0E11;stroke-width:4px}
 #cPlayers g,#cBall{transition:transform .42s cubic-bezier(.3,.7,.3,1)}
 @media (prefers-reduced-motion: reduce){#cPlayers g,#cBall{transition:none}}
+.realstrip{border:1.5px dashed var(--line);border-radius:8px;padding:8px 12px;font-size:13.5px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:baseline}
+.realstrip .rk{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.realstrip .rv2{font-weight:600}
+.realstrip .same{color:var(--good);font-weight:700}.realstrip .diff{color:var(--accent);font-weight:700}
+.vsgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;font-size:13.5px}
+.vsgrid>div{padding:8px 10px;border-bottom:1px dashed var(--line)}
+.vsgrid .hd{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+.vsgrid .yo{border-right:1.5px solid var(--line)}
+.vsgrid .t{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.vsgrid .match{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.vsgrid .fin{font-family:var(--f-display);font-weight:800;font-size:22px}
+.wrap>.realstrip{grid-column:1}
 .team .rec{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--board-text);opacity:.75;min-height:15px}
 .score{font-family:var(--f-display);font-weight:800;font-size:clamp(48px,14vw,72px);line-height:1;color:var(--led);text-shadow:0 0 14px rgba(255,178,30,.35)}
 .clock{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 12px;border-left:1px solid var(--board-line);border-right:1px solid var(--board-line)}
@@ -257,6 +269,7 @@ body.has-appbar .wrap{padding-bottom:110px}
 .challenge{border:2px dashed var(--accent);border-radius:8px;padding:10px 12px;font-size:15px}
 .steps{display:flex;flex-direction:column;gap:10px}.steps>div{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}.steps b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-size:18px}
 .floor{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px}.floor summary{cursor:pointer;font-weight:600;font-size:14px}
+.realh{list-style:none;padding:0;margin:8px 0 0;font-size:13px}.realh li{padding:2px 0}
 .fl{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;font-variant-numeric:tabular-nums}.fl th,.fl td{padding:4px 4px;border-bottom:1px dashed var(--line);text-align:right}.fl th:first-child,.fl td:first-child{text-align:left}.fl th{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);font-weight:600}.fl small{color:var(--muted)}
 .dist{display:flex;flex-direction:column;gap:5px}
 .dist .row{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
@@ -296,7 +309,7 @@ dialog.sheet:not([open]){display:none!important}
   .wrap>.situation,.wrap>#panel,.wrap>#result{grid-column:2}
   .wrap>.board{grid-row:span 1}
   .wrap>.situation{grid-row:3}.wrap>#panel{grid-row:4 / span 3}.wrap>#result{grid-row:4 / span 3}
-  .wrap>.board{grid-row:3}.wrap>.court-wrap{grid-row:4}.wrap>.pbp{grid-row:5}
+  .wrap>.board{grid-row:3}.wrap>.court-wrap{grid-row:4}.wrap>.realstrip{grid-row:5}.wrap>.pbp{grid-row:6}
 }
 @media (max-width:420px){.top-meta{gap:6px}.chip{font-size:11px;padding:6px 7px;letter-spacing:.03em}.opts{grid-template-columns:1fr}.ev{grid-template-columns:48px 1fr auto}.rv{grid-template-columns:80px 1fr auto}}
 </style>
@@ -328,7 +341,7 @@ dialog.sheet:not([open]){display:none!important}
   </dialog>
   <dialog class="sheet panel how" id="howPanel"><button class="sheet-x" type="button" aria-label="Close" data-close>×</button>
     <h3>How it works</h3>
-    <p>Every ending is a real, close NBA game: the last ten seasons plus playoff classics back to 2001. You coach the team that was trailing (or tied with the ball) with about a minute left. At each real possession you make the call. Then you see what the real coach did and how it played out, and the game moves on from what actually happened.</p>
+    <p>Every ending is a real, close NBA game: the last ten seasons plus playoff classics back to 2001. You coach one side with about a minute left: a comeback, protecting a lead, or a last shot. You make every call and it actually plays out, using the real players' season numbers, so the game can go differently than it really did. At the end you see your result next to the real one.</p>
     <ul>
       <li>On offense: pick a play, a tempo, and whether to burn a timeout to advance the ball. On defense: play straight, run them off the line, trap, or foul on purpose.</li>
       <li>Every call is graded by simulating 2,000 playouts of each option from that exact score, clock, and timeout situation, using league-average rates tuned to late-game NBA shooting (about 53% at the rim, 35% on threes, 78% at the line) and each team's real season shooting.</li>
@@ -406,6 +419,8 @@ dialog.sheet:not([open]){display:none!important}
     </svg>
   </section>
 
+  <section class="realstrip" id="realStrip" hidden></section>
+
   <section class="situation" id="situation">
     <p class="matchup" id="matchup"></p>
     <h2 class="sit-head" id="sitHead">Loading</h2>
@@ -480,7 +495,7 @@ const Engine = (() => {
   }
   const D = s => s.us - s.them;
   const other = side => side==='us'?'them':'us';
-  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look,lu:s.lu}}
+  function clone(s){return {us:s.us,them:s.them,t:s.t,sc:s.sc,poss:s.poss,toUs:s.toUs,over:s.over,r:s.r,look:s.look,lu:s.lu,nm:s.nm,toThem:s.toThem,floor:s.floor}}
   function evalOne(s,a,seed,N=2000){ let w=0; for(let i=0;i<N;i++){ const c=clone(s), r=mulberry32(hash(seed,i)); applyUser(c,a,r,null); let g=0; while(!c.over && g++<40) applyUser(c,smart(c),r,null); w+=result(c); } return w/N; }
   // Team shooting relative to league average (1 = average). Set per real game from season stats.
   const R = (s,side) => (s.r&&s.r[side]) || {f2:1,f3:1,ft:FT[side]};
@@ -488,6 +503,10 @@ const Engine = (() => {
   function flip(s){ s.poss=other(s.poss); s.sc=24; }
   function tick(s,dt){ s.t=Math.max(0,s.t-dt); s.sc=Math.max(0,s.sc-dt); if(s.t<=0.05) s.t=0; }
   function log(ev,s,side,text,cls){ if(ev) ev.push({t:s.t,side,text,us:s.us,them:s.them,cls:cls||''}); }
+  // Real names when we know the five on the floor, generic wording otherwise.
+  const NM = (s,id,side) => (id && s.nm && s.nm[id]) || (side==='us'?'Your shooter':'Their shooter');
+  const role = (s,side,r) => { const L=s.lu&&s.lu[side]; if(L&&L[r]) return L[r]; const f=s.floor&&s.floor[side]; return f&&f.length ? f[({star:0,sh:1,drv:2,big:4}[r]||0)%f.length] : null; };
+  const other5 = (s,side,i) => { const L=s.lu&&s.lu[side]; if(L&&L.p) return L.p[i%L.p.length][0]; const f=s.floor&&s.floor[side]; return f&&f.length ? f[i%f.length] : null; };
 
   function shotWord(play,is3){ if(is3) return 'three'; return play==='rim'?'layup':play==='pnr'?'roll-man finish':play==='iso'?'pull-up jumper':'two'; }
 
@@ -495,13 +514,14 @@ const Engine = (() => {
     let made=0,last=false;
     const L=s.lu&&s.lu[side], avgFt=L&&L.p?L.p.reduce((a,r)=>a+r[3],0)/L.p.length:null;
     const ftp=s._ft||avgFt||R(s,side).ft; s._ft=null;
-    for(let i=0;i<n;i++){ last = rng()<ftp; if(last){ add(s,side,1); made++; } }
-    log(ev,s,side,`${side==='us'?'You make':'They make'} ${made} of ${n} at the line.`);
+    const who=s._ftWho||role(s,side,'star'), name=NM(s,who,side); s._ftWho=null;
+    for(let i=0;i<n;i++){ last = rng()<ftp; if(last){ add(s,side,1); made++; }
+      log(ev,s,side,`${name} ${last?'cashes':'misses'} free throw ${i+1}/${n}`, last?'big':''); }
     if(!last && rng()<.12 && s.t>0.3){
       tick(s,1);
-      log(ev,s,side,`Offensive rebound off the miss!`);
-      if(rng()<.45){ add(s,side,2); log(ev,s,side,`Putback is good.`,'big'); }
-      else log(ev,s,side,`Putback rolls off.`);
+      const rb=role(s,side,'big'); log(ev,s,side,`${NM(s,rb,side)} grabs the offensive board`);
+      if(rng()<.45){ add(s,side,2); log(ev,s,side,`${NM(s,rb,side)} hits the putback`,'big'); }
+      else log(ev,s,side,`${NM(s,rb,side)} misses the putback`);
     }
     flip(s);
   }
@@ -509,7 +529,9 @@ const Engine = (() => {
   function intentionalFoul(s,shooter,rng,ev){
     const dt = Math.min(1.5+rng()*1.5, s.t*0.5);
     tick(s,dt);
-    log(ev,s,other(shooter), shooter==='them'?`You foul on purpose. Clock stops.`:`They foul you on purpose. Clock stops.`);
+    const target=role(s,shooter,'drv')||role(s,shooter,'star'), fouler=other5(s,other(shooter),3);
+    s._ftWho=target;
+    log(ev,s,other(shooter), `${NM(s,fouler,other(shooter))} fouls ${NM(s,target,shooter)} on purpose`);
     shootFTs(s,shooter,2,rng,ev);
   }
 
@@ -529,6 +551,7 @@ const Engine = (() => {
     if(L&&L.p){
       const pick = id => L.p.find(r=>r[0]===id);
       const who = pick(who_ || (play==='three'?L.sh:play==='rim'?L.drv:L.star)) || L.p[0];
+      s._shooter=who[0];
       if(play==='pnr'){ const big=pick(L.big)||who; f2=(who[1]+big[1])/2; f3=Math.max(who[2], (pick(L.sh)||who)[2]); }
       else { f2=who[1]; f3=who[2]; }
       s._ft=who[3];
@@ -540,31 +563,36 @@ const Engine = (() => {
     if(rushed){ m2*=.8; m3*=.85; }
     if(heave){ two = play==='rim'?1:0; m2=.2; m3 = t0>0.5?.12:.06; foul=0; to=0; }
 
-    const who = side==='us'?'You':'They', whose = side==='us'?'Your':'Their';
+    const shooterId = s._shooter || role(s,side,play==='three'?'sh':play==='rim'?'drv':'star'); s._shooter=null;
+    const SN = NM(s,shooterId,side);
     if(ev){
+      if(useTO) log(ev,s,side,`${side==='us'?'You burn':'They burn'} a timeout`);
       let lead = side==='us'
-        ? `${useTO?'Timeout, ball advanced. ':''}${P.name}${heave?', catch and fire':tempo==='late'?', holding for the last shot':tempo==='quick'?', quick hitter':''}.`
-        : `They run ${P.name.toLowerCase()}${tempo==='late'?' and milk the clock':tempo==='quick'?' quickly':''}${def==='trap'?' into your trap':def==='deny3'?' with shooters denied':''}.`;
+        ? `${P.name}${heave?', catch and fire':tempo==='late'?', holding for the last shot':tempo==='quick'?', quick hitter':''}`
+        : `They run ${P.name.toLowerCase()}${tempo==='late'?' and milk the clock':tempo==='quick'?' quickly':''}${def==='trap'?' into your trap':def==='deny3'?' with shooters denied':''}`;
       log(ev,s,side,lead,'note');
     }
     tick(s,tu);
     const is3 = two>=1?false: two<=0?true: rng()>=two;
-    const pts = is3?3:2, w=shotWord(play,is3);
+    const pts = is3?3:2;
+    const ft3 = 23+Math.floor((t0*7))%5, ft2 = play==='rim'||play==='pnr'&&!is3 ? 2 : 13+Math.floor(t0*3)%7;
+    const what = is3 ? `a ${ft3}-foot three` : ft2<=2 ? (play==='pnr'?'the roll-man layup':'the layup') : `a ${ft2}-footer`;
     const r=rng();
-    if(r<to){ log(ev,s,side, side==='us'?`Turnover. Their ball.`:`Turnover! Your ball.`,'big'); flip(s); return; }
+    if(r<to){ const st=other5(s,other(side),1); log(ev,s,side,`${SN} coughs it up, picked off by ${NM(s,st,other(side))}`,'big'); flip(s); return; }
     if(r<to+foul){
-      if(rng()<.22){ add(s,side,pts); log(ev,s,side,`${whose} ${w} is good, and the foul!`,'big'); shootFTs(s,side,1,rng,ev); }
-      else { log(ev,s,side,`${who} get fouled on the ${w}. ${pts} shots.`); shootFTs(s,side,pts,rng,ev); }
+      const fl=other5(s,other(side),2); s._ftWho=shooterId;
+      if(rng()<.22){ add(s,side,pts); log(ev,s,side,`${SN} ${is3?'drills':'hits'} ${what} and the foul!`,'big'); log(ev,s,other(side),`${NM(s,fl,other(side))} fouls the shooter`); shootFTs(s,side,1,rng,ev); }
+      else { log(ev,s,other(side),`${NM(s,fl,other(side))} fouls the shooter (${SN} to the line)`); shootFTs(s,side,pts,rng,ev); }
       return;
     }
-    if(rng() < (is3?m3:m2)){ add(s,side,pts); log(ev,s,side,`${whose} ${w} is GOOD.`,'big'); flip(s); return; }
-    log(ev,s,side,`${whose} ${w} misses.`);
+    if(rng() < (is3?m3:m2)){ add(s,side,pts); log(ev,s,side,`${SN} ${is3?'drills':'hits'} ${what}`,'big'); flip(s); return; }
+    log(ev,s,side,`${SN} misses ${what}`);
     if(s.t>0.4 && rng()<P.orb){
       tick(s,1.5);
-      log(ev,s,side,`${side==='us'?'You':'They'} grab the offensive board.`);
-      if(rng()<.48){ add(s,side,2); log(ev,s,side,`Putback is good.`,'big'); }
-      else log(ev,s,side,`Putback no good. ${side==='us'?'Their':'Your'} ball.`);
-    }
+      const rb=role(s,side,'big'); log(ev,s,side,`${NM(s,rb,side)} grabs the offensive board`);
+      if(rng()<.48){ add(s,side,2); log(ev,s,side,`${NM(s,rb,side)} hits the putback`,'big'); }
+      else log(ev,s,side,`${NM(s,rb,side)} misses the putback`);
+    } else if(ev){ const rb=role(s,other(side),'big'); log(ev,s,other(side),`${NM(s,rb,other(side))} secures the rebound`); }
     flip(s);
   }
 
@@ -677,7 +705,7 @@ const Engine = (() => {
 /* ======================= DATA ======================= */
 // Real endings live in data/<season>.json, listed in data/index.json with the locked daily schedule.
 const DATA_BASE = (location.protocol==='http:'||location.protocol==='https:') ? 'data/' : 'https://crunchtimedaily.com/data/';
-const DATA_V = 963;
+const DATA_V = 3311;
 let INDEX = null; const SEASONS = {};
 async function loadIndex(){ if(!INDEX){ const r=await fetch(DATA_BASE+'index.json?v='+DATA_V); INDEX=await r.json(); } return INDEX; }
 async function getEnding(id){
@@ -776,6 +804,7 @@ function setMode(m){
   $('simBtn').classList.toggle('solid',m==='sim');
 }
 function resetView(){
+  if($('realStrip')) $('realStrip').hidden=true;
   try{ Court.setLineup(null); }catch(e){}
   document.querySelector('.court-wrap').hidden=false; $('situation').hidden=false;
   $('pbp').innerHTML=''; $('result').hidden=true; $('panel').hidden=false; document.querySelectorAll('dialog.sheet[open]').forEach(d=>d.close());
@@ -1020,7 +1049,7 @@ function lockPanel(text){
 function grade(snap,a,seed,coachAct){
   const evals=Engine.evaluate(snap, seed);
   const byKey=Object.fromEntries(evals.map(e=>[e.key,e]));
-  const best=evals.reduce((m,e)=>e.wp>m.wp?e:m);
+  let best=evals.reduce((m,e)=>e.wp>m.wp?e:m);
   let wp=byKey[Engine.key(a)].wp, cwp=byKey[Engine.key(coachAct)].wp;
   if(a.who && snap.lu) wp=Engine.evalOne(snap,a,seed);
   if(coachAct.who && snap.lu) cwp=Engine.evalOne(snap,coachAct,seed);
@@ -1108,22 +1137,48 @@ function startReal(mode, ending){
 function realLines(step){
   return step.lines.map(l=>({t:l.t, side:l.side, text:l.txt, us:l.us, them:l.them, cls:/\b(hits|drills|cashes)\b/.test(l.txt)?'big':''}));
 }
+// ---- Real endings, played out: your calls happen (real players' numbers), the game follows your results,
+// and the real game is the comparison. Outcomes are seeded by game + possession + call, so everyone who
+// makes the same calls gets the same result.
+function realLastLine(rs){ const ls=(rs&&rs.lines)||[]; const l=[...ls].reverse().find(x=>!/timeout|Instant Replay/i.test(x.txt)); return l?l.txt:''; }
+// "Real game" strip: before your call only the real score at this moment; after it, the coach's call and how it went.
+function showRealStrip(after){
+  const el=$('realStrip'); if(!el||!G||G.kind!=='real') { if(el) el.hidden=true; return; }
+  const g=G.g, rs=realStepAt((after&&after.snap?after.snap:G.s).t);
+  el.hidden=false;
+  const top=`<span class="rk">Real game</span><span class="rv2">${fmt(rs.state.t)} · ${esc(g.usAb)} ${rs.state.us}–${rs.state.them} ${esc(g.themAb)} · ${rs.state.poss==='us'?esc(g.usAb):esc(g.themAb)} ball</span>`;
+  if(!after){ el.innerHTML=top+`<span class="rk"></span><span class="hint">The real coach's call shows after you make yours.</span>`; return; }
+  const cl=coachName(g)?coachLast(g):'Real coach', same=rs.real && Engine.key(coachAction(rs.real,rs.state))===Engine.key({...after.a, who:undefined});
+  el.innerHTML=top+`<span class="rk">${esc(cl)}</span><span>${rs.real?esc(describeReal(rs.real,rs.state)):'No call (auto)'} ${rs.real?(same?'<span class="same">· same call ✓</span>':'<span class="diff">· different call</span>'):''}</span>
+    <span class="rk">Result</span><span>${esc(realLastLine(rs))} <span class="hint">(${rs.lines&&rs.lines.length?rs.lines[rs.lines.length-1].us+'–'+rs.lines[rs.lines.length-1].them:''})</span></span>`;
+}
+function realStepAt(t){ // the real possession closest in time (for lineups and the "in the real game" note)
+  const steps=G.g.steps; let best=steps[0], bd=1e9;
+  for(const s of steps){ const d=Math.abs(s.state.t-t); if(d<bd){ bd=d; best=s; } }
+  return best;
+}
+function decorate(s){
+  const g=G.g, rs=realStepAt(s.t);
+  s.r=g.rates; s.nm=g.players||null; s.toThem=s.toThem!=null?s.toThem:rs.state.toThem;
+  s.lu=(rs.state&&rs.state.lu)||null; s.floor=(rs.state&&rs.state.floor)||null;
+  s.look=Engine.pickLook(Engine.hash(g.id,'look',G.decisions.length), s);
+  return s;
+}
 async function stepReal(){
   const g=G.g;
-  // possessions with no real decision (e.g. you get fouled right away) just play out
-  while(G.i<g.steps.length && g.steps[G.i].auto){
-    G.s={...g.steps[G.i].state, sc:24, over:false, r:g.rates}; renderBoard();
-    await pushEvents(realLines(g.steps[G.i]), false);
-    G.i++;
+  if(G.i===0 && !G.started){
+    // skip leading possessions with no real decision; start from the first real call
+    let k=0; while(k<g.steps.length && g.steps[k].auto) k++;
+    G.i=Math.min(k,g.steps.length-1); G.started=true; G.onReal=true;
+    G.s=decorate({...g.steps[G.i].state, sc:24, over:false});
   }
-  if(G.i>=g.steps.length){ finishReal(); return; }
-  const st=g.steps[G.i];
-  G.s={...st.state, sc:24, over:false, r:g.rates};
-  G.s.look=Engine.pickLook(Engine.hash(g.id,'look',G.i), G.s);
-  renderBoard(); Court.setLineup(st.state.floor||null); renderSituation(); Court.setOffense(G.s.poss); Court.name(''); Court.startIdle();
-  if(G.decisions.length===0 && !G.introDone){ renderIntro(st); return; }
+  if(G.s.over){ finishReal(); return; }
+  const s=G.s;
+  renderBoard(); Court.setLineup(s.floor||null); renderSituation(); Court.setOffense(s.poss); Court.name(''); Court.startIdle();
+  if(G.decisions.length===0 && !G.introDone){ renderIntro(g.steps[G.i]); return; }
   if(G.decisions.length===0) $('sitNote').textContent += ` You're coaching the ${teamOf(g.usAb,g.usFull).nick}.`;
-  renderPanel(st.state.poss==='us'?'off':'def');
+  showRealStrip(null);
+  renderPanel(s.poss==='us'?'off':'def');
 }
 function renderIntro(st){
   const g=G.g, s=G.s, d=Engine.D(s), U=teamOf(g.usAb,g.usFull), T=teamOf(g.themAb,g.themFull);
@@ -1153,62 +1208,85 @@ function describeReal(real, s){
   if(real.def) return real.def==='foul' ? 'Fouled on purpose' : 'Defended (no foul)';
   const ca=coachAction(real,s); return Engine.label(ca)+(ca.who?` · ${playerName(ca.who)}`:'');
 }
+function sameSpot(a,b){ return a && b && a.us===b.us && a.them===b.them && a.poss===b.poss && Math.abs(a.t-b.t)<1.5; }
+function realNote(t){ // what the real coach did around this moment of the real game
+  const g=G.g, rs=realStepAt(t); if(!rs||!rs.real) return '';
+  const who=coachName(g)||'The real coach';
+  return `In the real game at ${fmt(rs.state.t)} (${rs.state.us}–${rs.state.them}), ${who.split(' ').slice(-1)[0]} called: ${describeReal(rs.real, rs.state)}.`;
+}
 async function callReal(k){
   if(G.busy) return; G.busy=true;
   lockPanel('Grading…');
   await new Promise(r=>setTimeout(r,30));
-  const g=G.g, st=g.steps[G.i], snap={...st.state, sc:24, over:false, r:g.rates, look:G.s.look};
+  const g=G.g, idx=G.decisions.length, snap={...G.s};
   const a=readAction(k);
-  if(G.decisions.length===0) track(G.mode==='daily'?'start':'practice', G.mode);
+  if(idx===0) track(G.mode==='daily'?'start':'practice', G.mode);
   const acting=Court.act(a);
-  const ca=coachAction(st.real, snap);
-  const d=grade(snap,a,Engine.hash(g.id,'eval',G.i),ca);
-  d.realLabel=describeReal(st.real,snap);
+  const rs=g.steps[G.i], onReal=G.onReal && rs && sameSpot(rs.state, snap) && rs.real;
+  const ca=onReal ? coachAction(rs.real, snap) : a;
+  const d=grade(snap,a,Engine.hash(g.id,'eval',idx,snap.us,snap.them,Math.round(snap.t)),ca);
+  d.onReal=!!onReal; d.realLabel=onReal?describeReal(rs.real,snap):null; d.note=onReal?'':realNote(snap.t);
   G.decisions.push(d);
   const sq=square(d.best.wp-d.wp), same=Engine.key(a)===d.best.key;
   setWP(d.wp); native({type:'haptic',style:sq});
-  const lines=st.lines.filter(l=>!/Instant Replay/i.test(l.txt));
-  const isLast = !g.steps.slice(G.i+1).some(x=>!x.auto);
+  showRealStrip(d);
+  // play YOUR call out
+  const ev=[]; const rng=Engine.mulberry32(Engine.hash(g.id,'play',idx,Engine.key(a),a.who||''));
+  Engine.applyUser(G.s, a, rng, ev);
+  if(G.s.over && Engine.D(G.s)===0){
+    const otWin=Engine.mulberry32(Engine.hash(g.id,'ot',G.s.us))()<.5, o=5+(Engine.hash(g.id)%6);
+    G.s.us+=otWin?o+3:o; G.s.them+=otWin?o:o+3;
+    ev.push({t:0,side:'',text:`End of regulation, tied. Overtime: ${otWin?'you win it':'you lose it'}.`,us:G.s.us,them:G.s.them,cls:'note'});
+  }
+  // still on the real path? (same score, clock and ball as the next real possession)
+  const nextReal=g.steps.findIndex((x,ix)=>ix>G.i && !x.auto);
+  G.onReal = onReal && nextReal>=0 && sameSpot(g.steps[nextReal].state, G.s);
+  if(nextReal>=0) G.i=nextReal; else G.i=g.steps.length;
+  if(!G.s.over) decorate(G.s);
   $('panel').innerHTML = `
     <div class="reveal">
       <div class="rv-head"><i class="sq ${sq}"></i><b>${SQWORD[sq]}</b></div>
       <div class="rv-rows">
         <div class="rv me"><span class="who">You</span><span class="what">${esc(Engine.label(a))}${a.who?` · ${esc(playerName(a.who))}`:''}</span><span class="wp">${pct(d.wp)}</span></div>
-        <div class="rv"><span class="who">${esc(coachName(g)||'Real coach')}</span><span class="what">${esc(d.realLabel)}</span><span class="wp">${pct(d.coachWp)}</span></div>
+        ${d.onReal?`<div class="rv"><span class="who">${esc(coachName(g)||'Real coach')}</span><span class="what">${esc(d.realLabel)}</span><span class="wp">${pct(d.coachWp)}</span></div>`:''}
         ${same?'':`<div class="rv"><span class="who">Best</span><span class="what">${esc(Engine.label(d.best.a))}</span><span class="wp">${pct(d.best.wp)}</span></div>`}
       </div>
       <div class="why">${esc(whyLine(d))}</div>
+      ${d.note?`<div class="hint">${esc(d.note)}</div>`:''}
       <div class="hint">Win odds from this exact spot, 2,000 simulated playouts per option.</div>
       <div class="crowd" id="crowd" hidden></div>
       ${debateNote(d)}
       ${optionsTable(d)}
-      <a class="dispute" href="mailto:george@trychartread.com?subject=${encodeURIComponent(`Grade dispute: ${g.id} possession ${G.i+1}`)}&body=${encodeURIComponent('What do you think the grade got wrong?\n\n')}">Disagree with this grade?</a>
-      <div class="happened"><div class="hd">What actually happened</div><ul>${lines.map(l=>`<li><span class="tt">${fmt(l.t)}</span>${esc(l.txt)}</li>`).join('')}</ul></div>
-      <div class="call"><button class="btn" id="nextBtn" type="button">${isLast?'See the final':'Next possession'}</button></div>
+      <a class="dispute" href="mailto:george@trychartread.com?subject=${encodeURIComponent(`Grade dispute: ${g.id} call ${idx+1}`)}&body=${encodeURIComponent('What do you think the grade got wrong?\n\n')}">Disagree with this grade?</a>
+      <div class="happened"><div class="hd">How your call played out</div><ul id="yourPlay"></ul></div>
+      <div class="call"><button class="btn" id="nextBtn" type="button">${G.s.over?'See the final':'Next possession'}</button></div>
     </div>`;
-  if(G.mode==='daily' && PID) api('/pick',{day:G.day,step:G.i,pid:PID,pick:a.def||a.play}).then(r=>showCrowd(r, a.def||a.play));
+  if(G.mode==='daily' && PID && d.onReal) api('/pick',{day:G.day,step:idx,pid:PID,pick:a.def||a.play}).then(r=>showCrowd(r, a.def||a.play));
   const nb=$('nextBtn'); nb.disabled=true;
   await acting;
-  await pushEvents(realLines(st), false);
+  const ul=$('yourPlay'); ev.filter(e=>e.cls!=='note'||/regulation/.test(e.text)).forEach(e=>{ ul.insertAdjacentHTML('beforeend',`<li><span class="tt">${fmt(e.t)}</span>${esc(e.text)}</li>`); });
+  await pushEvents(ev, false);
+  renderBoard();
   G.busy=false; nb.disabled=false;
-  nb.addEventListener('click',()=>{ G.i++; stepReal(); });
+  nb.addEventListener('click',()=>stepReal());
   nb.focus({preventScroll:true});
 }
 async function finishReal(){
-  const g=G.g;
-  G.s={us:g.final.us, them:g.final.them, t:0, sc:0, poss:'us', toUs:G.s.toUs, over:true};
+  const g=G.g, fin={us:G.s.us, them:G.s.them};
+  G.s={...G.s, t:0, over:true};
   renderBoard(); setWP(null);
   $('panel').hidden=true;
   const ds=G.decisions;
   const score=Math.round(100*ds.reduce((a,d)=>a+pts(d.best.wp-d.wp),0)/ds.length);
-  const coachScore=Math.round(100*ds.reduce((a,d)=>a+pts(d.best.wp-d.coachWp),0)/ds.length);
+  // the real coach's grade comes from the real game's calls (precomputed at build time)
+  const coachScore = g.cg ? g.cg.score : Math.round(100*ds.filter(d=>d.onReal).reduce((a,d)=>a+pts(d.best.wp-d.coachWp),0)/Math.max(1,ds.filter(d=>d.onReal).length));
   const sq=ds.map(d=>square(d.best.wp-d.wp));
-  const won=g.final.us>g.final.them;
-  const data={kind:'real',id:g.id,day:G.day,mode:G.mode,usFull:g.usFull,themFull:g.themFull,coachFull:coachName(g),coachLast:coachName(g)?coachLast(g):null,classic:g.classic||null,score,coachScore,won,us:g.final.us,them:g.final.them,usAb:g.usAb,themAb:g.themAb,title:g.title,
+  const won=fin.us>fin.them, realWon=g.final.us>g.final.them;
+  const data={kind:'real',id:g.id,day:G.day,mode:G.mode,usFull:g.usFull,themFull:g.themFull,coachFull:coachName(g),coachLast:coachName(g)?coachLast(g):null,classic:g.classic||null,score,coachScore,won,us:fin.us,them:fin.them,realWon,realUs:g.final.us,realThem:g.final.them,usAb:g.usAb,themAb:g.themAb,title:g.title,
     grid:sq.map(x=>EMOJI[x]).join(''),
     recap:ds.map((d,i)=>({sq:sq[i],sit:`${fmt(d.snap.t)} · ${sitWords(d.snap)} · ${d.snap.poss==='us'?'your':'their'} ball`,
-      you:Engine.label(d.a),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
-      coach:d.realLabel,coachWp:d.coachWp}))};
+      you:Engine.label(d.a)+(d.a.who?` · ${playerName(d.a.who)}`:''),youWp:d.wp,best:Engine.label(d.best.a),bestWp:d.best.wp,same:Engine.key(d.a)===d.best.key,
+      coach:d.onReal?d.realLabel:null,coachWp:d.onReal?d.coachWp:null,note:d.note||''}))};
   await loadCoaches();
   data.coachPct=coachPct(score);
   const style = G.mode==='daily' ? addStyle(styleOf(ds)) : (()=>{ const a=store.get('crunchtime:style')||{off:0,three:0,rim:0,to:0,quick:0,def:0,foul:0}, b=styleOf(ds); for(const k in b) a[k]+=b[k]; return a; })();
@@ -1344,7 +1422,8 @@ function shareText(d){
     lines.push(verdict(d));
     if(d.phil) lines.push('🧘 Found Phil Jackson #FindPhil');
     if(d.streak>=2) lines.push(`🔥 ${d.streak}-day streak${d.froze?' (🧊 freeze used)':''}`);
-    lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.grid}`);
+    lines.push(`${d.usAb} ${d.won?'W':'L'} ${d.us}-${d.them}${d.realUs!=null&&d.won!==d.realWon?(d.won?' (they lost in real life)':' (they won in real life)'):''}`);
+    lines.push(d.grid);
     let nm=''; try{ nm=localStorage.getItem('crunchtime:name')||''; }catch(e){}
     lines.push(`Can you beat me? https://crunchtimedaily.com/d/${d.day}${d.mode==='daily'?`?s=${d.score}${nm?`&n=${encodeURIComponent(nm)}`:''}`:''}`);
     return lines.join('\n');
@@ -1356,7 +1435,7 @@ function shareText(d){
 // Win chance after each call: yours, the best call's, and the real coach's. Shown only after the game.
 function wpChart(d){
   const W=320,H=130,P=22, n=d.recap.length, xs=i=>P+(W-2*P)*(n===1?0:i/(n-1)), ys=v=>H-P-(H-2*P)*v;
-  const line=(k,c,dash)=>`<polyline fill="none" stroke="${c}" stroke-width="2.5" ${dash?'stroke-dasharray="5 4"':''} points="${d.recap.map((r,i)=>`${xs(i)},${ys(r[k])}`).join(' ')}"/>`;
+  const line=(k,c,dash)=>`<polyline fill="none" stroke="${c}" stroke-width="2.5" ${dash?'stroke-dasharray="5 4"':''} points="${d.recap.map((r,i)=>r[k]==null?'':`${xs(i)},${ys(r[k])}`).filter(Boolean).join(' ')}"/>`;
   let worst=-1, wl=0; d.recap.forEach((r,i)=>{ const l=r.bestWp-r.youWp; if(l>wl){ wl=l; worst=i; } });
   return `<div><svg class="wpchart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Win chance by possession">
     ${[0,.5,1].map(v=>`<line x1="${P}" x2="${W-P}" y1="${ys(v)}" y2="${ys(v)}" stroke="currentColor" opacity=".12"/><text x="2" y="${ys(v)+3}">${v*100}%</text>`).join('')}
@@ -1364,6 +1443,18 @@ function wpChart(d){
     ${d.recap.map((r,i)=>`<circle cx="${xs(i)}" cy="${ys(r.youWp)}" r="3.5" fill="#FF6B33"/><text x="${xs(i)-3}" y="${H-6}">${i+1}</text>`).join('')}
   </svg><div class="wp-legend"><span><i style="background:#FF6B33"></i>You</span><span><i style="background:#2F9A5A"></i>Best call</span><span><i style="background:#9AA3AD"></i>${esc(d.coachLast||'Real coach')}</span></div>
   ${worst>=0&&wl>=.02?`<div class="hint">Your costliest call: possession ${worst+1}, ${Math.round(wl*100)}% of win chance.</div>`:'<div class="hint">No costly calls. Clean game.</div>'}</div>`;
+}
+function sideBySide(d, g){
+  const rows=G.decisions.map((x,i)=>{ const rs=realStepAt(x.snap.t), same=rs.real && Engine.key(coachAction(rs.real,rs.state))===Engine.key({...x.a,who:undefined});
+    return `<div class="yo${same?' match':''}"><span class="t">${fmt(x.snap.t)} · ${x.snap.us}–${x.snap.them}</span>${esc(Engine.label(x.a))}${x.a.who?` · ${esc(playerName(x.a.who))}`:''} <i class="sq ${square(x.best.wp-x.wp)}" style="width:10px;height:10px;border-radius:2px"></i></div>
+      <div class="${same?'match':''}"><span class="t">${fmt(rs.state.t)} · ${rs.state.us}–${rs.state.them}</span>${rs.real?esc(describeReal(rs.real,rs.state)):'–'}<span class="t">${esc(realLastLine(rs))}</span></div>`; }).join('');
+  return `<h3>Your game vs the real game</h3><div class="vsgrid"><div class="hd yo">You</div><div class="hd">${esc(coachName(g)||'Real coach')}</div>${rows}
+    <div class="yo fin">${d.won?'W':'L'} ${d.us}–${d.them}</div><div class="fin">${d.realWon?'W':'L'} ${d.realUs}–${d.realThem}</div></div>
+    <div class="hint">Green rows: you made the same call as the real coach.</div>`;
+}
+function realHistory(g){
+  const lines=g.steps.flatMap(s=>s.lines||[]).filter(l=>!/Instant Replay/i.test(l.txt));
+  return `<details class="floor"><summary>How the real game went</summary><ul class="realh">${lines.map(l=>`<li><span class="tt">${fmt(l.t)}</span>${esc(l.txt)} <span class="tt">${l.us}–${l.them}</span></li>`).join('')}</ul></details>`;
 }
 function renderResult(d){
   const R=$('result'); R.hidden=false;
@@ -1379,8 +1470,8 @@ function renderResult(d){
     ${d.kind==='real'?`<div class="h2h ${d.score>=d.coachScore?'won':'lost'}">
       <div class="h2-k">You vs ${esc(d.coachFull||'the real coach')}</div>
       <div class="h2-big">${d.score>d.coachScore?`You beat ${esc(d.coachLast||'the coach')}`:d.score===d.coachScore?`You matched ${esc(d.coachLast||'the coach')}`:`${esc(d.coachLast||'The coach')} wins this one`}</div>
-      <div class="h2-row"><b>You</b><span>${d.score} grade</span></div>
-      <div class="h2-row"><b>${esc(d.coachLast||'Real coach')}</b><span>${d.coachScore} grade · real final ${d.won?'W':'L'} ${d.us}–${d.them}</span></div>
+      <div class="h2-row"><b>You</b><span>${d.score} grade · ${d.won?'won':'lost'} ${d.us}–${d.them}</span></div>
+      <div class="h2-row"><b>${esc(d.coachLast||'Real coach')}</b><span>${d.coachScore} grade · ${d.realUs!=null?(d.realWon?'won':'lost')+' '+d.realUs+'–'+d.realThem:''}</span></div>
     </div>`:`<div class="vs">
       <div class="${d.score>=d.coachScore?'win':''}"><div class="lbl">Your calls</div><div class="num">${d.score}</div></div>
       <div class="${d.coachScore>d.score?'win':''}"><div class="lbl">${coachName}</div><div class="num">${d.coachScore}</div></div>
@@ -1389,13 +1480,15 @@ function renderResult(d){
     <div class="pct" id="pctLine" ${d.pct!=null?'':'hidden'}>${d.pct!=null?`Better than <b>${d.pct}%</b> of players · Rank #${d.rank} of ${d.players}`:''}</div>
     ${d.kind==='real'&&d.recap.length>1?wpChart(d):''}
     <div class="grid-emoji" aria-label="Decision grades">${d.grid||'No calls needed'}</div>
-    <div class="hint">${d.kind==='real'?`Real final: ${esc(d.usAb)} ${d.us}, ${esc(d.themAb)} ${d.them}. `:`${d.won?'You won':'You lost'} ${d.us}–${d.them}. `}50 is solid, 90+ is elite. The grade measures calls, not bounces.</div>
+    <div class="hint">${d.kind==='real'&&d.realUs!=null?`Your game: ${esc(d.usAb)} ${d.us}, ${esc(d.themAb)} ${d.them}. The real game ended ${d.realUs}–${d.realThem}. `:`${d.won?'You won':'You lost'} ${d.us}–${d.them}. `}50 is solid, 90+ is elite. The grade measures calls, not bounces.</div>
+    ${d.kind==='real'&&G&&G.g&&G.g.id===d.id&&G.decisions.length?sideBySide(d,G.g):''}
+    ${d.kind==='real'&&G&&G.g&&G.g.id===d.id?realHistory(G.g):''}
     ${st?`<div class="stats"><span><b>${st.played}</b>Played</span><span><b>${st.streak}</b>Streak</span><span><b>${st.best}</b>Best streak</span><span><b>${st.played?Math.round(st.sum/st.played):0}</b>Avg grade</span><span><b>${st.beat}</b>Beat coach</span></div>`:''}
     <div class="recap">${d.recap.map(r=>`
       <div class="rc"><i class="sq ${r.sq}"></i><div class="line">
         <div class="sit">${r.sit}</div>
         <div>You: <b>${esc(r.you)}</b> · ${pct(r.youWp)}</div>
-        <div>${esc(d.coachLast||coachName)}: ${esc(r.coach)} · ${pct(r.coachWp)}</div>
+        ${r.coach?`<div>${esc(d.coachLast||coachName)}: ${esc(r.coach)} · ${pct(r.coachWp)}</div>`:r.note?`<div class="hint">${esc(r.note)}</div>`:''}
         ${r.same?'<div class="hint">You found the best call.</div>':`<div class="hint">Best: ${esc(r.best)} · ${pct(r.bestWp)}</div>`}
       </div></div>`).join('')}
     </div>
@@ -1416,8 +1509,8 @@ function renderResult(d){
   });
   if(!isPro()){ const ab=$('againBtn'); ab.textContent='Try Survival'; }
   $('againBtn').addEventListener('click',async()=>{ if(!isPro()){ startSurvival(SURV.run===0); return; } const p=poolIds('practice'); startReal('archive', await getEnding(p[(Math.random()*p.length)|0])); });
-  $('sitHead').textContent = d.kind==='real' ? (d.won?`Final. The ${teamOf(d.usAb,d.usFull).nick} won.`:`Final. The ${teamOf(d.usAb,d.usFull).nick} lost.`) : (d.won?'Final. You win.':'Final. You lose.');
-  $('sitNote').textContent = 'Here is how each call graded out.';
+  $('sitHead').textContent = d.kind==='real' ? (d.won?`Final. You won ${d.us}–${d.them}.`:`Final. You lost ${d.us}–${d.them}.`) : (d.won?'Final. You win.':'Final. You lose.');
+  $('sitNote').textContent = d.kind==='real'&&d.realUs!=null ? `In the real game the ${teamOf(d.usAb,d.usFull).nick} ${d.realWon?'won':'lost'} ${d.realUs}–${d.realThem}. Here is how each call graded out.` : 'Here is how each call graded out.';
   if(ADSENSE) placeAd('adResult', ADSENSE.resultSlot);
   R.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
 }
