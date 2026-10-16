@@ -206,7 +206,7 @@ button:focus-visible,.opt:focus-within,.game:focus-visible{outline:3px solid var
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend .sq{width:12px;height:12px;border-radius:3px}
-.games{display:flex;flex-direction:column;max-height:420px;overflow:auto;border-top:1px dashed var(--line)}
+.games{display:flex;flex-direction:column;border-top:1px dashed var(--line)}
 .game{display:grid;grid-template-columns:1fr auto;gap:8px;text-align:left;background:none;border:0;border-bottom:1px dashed var(--line);padding:9px 2px;cursor:pointer}
 .game:hover{background:var(--accent-soft)}
 .game .gt{font-weight:600}
@@ -458,7 +458,7 @@ const Engine = (() => {
   const FT = {us:.78, them:.77};
   const PLAYS = {
     rim:  {name:'Attack the rim', desc:'Downhill drive. Best foul rate.', rate:'53% · 2 pts', two:1,   m2:.53, m3:0,   foul:.17, to:.09, orb:.24},
-    three:{name:'Spot-up three',  desc:'Run your shooter off screens.',   rate:'35% · 3 pts', two:0,   m2:0,   m3:.35, foul:.02, to:.06, orb:.28},
+    three:{name:'Spot-up three',  desc:'Run your shooter off screens.',   rate:'35% · 3 pts', two:0,   m2:0,   m3:.35, foul:.02, to:.06, orb:.26},
     iso:  {name:'Star isolation', desc:'Clear out. Mostly pull-up twos.', rate:'45% 2s · 33% 3s', two:.65, m2:.45, m3:.33, foul:.11, to:.06, orb:.22},
     pnr:  {name:'Pick-and-roll',  desc:'Roll-man finish or kick-out three.', rate:'54% 2s · 35% 3s', two:.7, m2:.54, m3:.35, foul:.10, to:.09, orb:.25},
   };
@@ -533,6 +533,11 @@ const Engine = (() => {
     tick(s,dt);
     const target=role(s,shooter,'drv')||role(s,shooter,'star'), fouler=other5(s,other(shooter),3);
     s._ftWho=target;
+    // Fouling on purpose isn't free: sometimes it's ruled a foul on a three-point try, or flagrant.
+    const r=rng(), trailBy3 = (shooter==='us'? -D(s) : D(s)) >= 3;
+    if(r<.05 && trailBy3){ log(ev,s,other(shooter), `${NM(s,fouler,other(shooter))} fouls ${NM(s,target,shooter)} on a three-point try`,'big'); shootFTs(s,shooter,3,rng,ev); return; }
+    if(r>.98){ log(ev,s,other(shooter), `Flagrant foul on ${NM(s,fouler,other(shooter))}: two shots and the ball`,'big');
+      const keep=s.poss; shootFTs(s,shooter,2,rng,ev); s.poss=shooter; s.sc=24; return; }
     log(ev,s,other(shooter), `${NM(s,fouler,other(shooter))} fouls ${NM(s,target,shooter)} on purpose`);
     shootFTs(s,shooter,2,rng,ev);
   }
@@ -559,7 +564,7 @@ const Engine = (() => {
       s._ft=who[3];
     }
     let two=P.two, m2=P.m2*f2+T.mod+(useTO?.02:0), m3=P.m3*f3+T.mod+(useTO?.02:0), foul=P.foul, to=P.to;
-    if(def==='deny3'){ m3-=.07; m2+=.03; if(play==='three') to+=.02; if(two>0&&two<1) two=Math.min(1,two+.15); }
+    if(def==='deny3'){ m3-=.07; m2+=.05; foul+=.03; if(play==='three') to+=.02; if(two>0&&two<1) two=Math.min(1,two+.15); }
     if(def==='trap'){ to+=.12; m2+=.11; m3+=.10; foul+=.04; }
     const rushed = !heave && tu<2.5 && play!=='three';
     if(rushed){ m2*=.8; m3*=.85; }
@@ -990,7 +995,14 @@ function radio(name,val,title,desc,rate,checked){
 function renderPanel(k){
   const s=G.s, P=$('panel'); P.hidden=false;
   if(k==='off'){
-    const plays=Object.entries(Engine.PLAYS).map(([v,p],i)=>radio('play',v,p.name,p.desc,p.rate,i===3)).join('');
+    // odds on each card come from the real player who'd take that shot, when we know the lineup
+    const L=s.lu&&s.lu.us, pc=x=>x==null?'–':Math.round(x*100)+'%', last=id=>(playerName(id)||'').replace(/^[A-Z]\. /,'');
+    const rateFor=(v,p)=>{ if(!L||!G.g||!G.g.pstats) return p.rate; const ps=id=>G.g.pstats[id]||{};
+      if(v==='three'){ const q=ps(L.sh); return `${last(L.sh)} ${pc(q.fg3)} from three`; }
+      if(v==='rim'){ const q=ps(L.drv); return `${last(L.drv)} ${pc(q.fg2)} 2P · ${pc(q.ft)} FT`; }
+      if(v==='iso'){ const q=ps(L.star); return `${last(L.star)} ${q.pts!=null?q.pts.toFixed(1):'–'} PPG`; }
+      const q=ps(L.star), b=ps(L.big); return `${last(L.star)} + ${last(L.big)} · ${pc(b.fg2)} 2P`; };
+    const plays=Object.entries(Engine.PLAYS).map(([v,p],i)=>radio('play',v,p.name,p.desc,rateFor(v,p),i===3)).join('');
     const tempos=Object.entries(Engine.TEMPOS).map(([v,p])=>radio('tempo',v,p.name,p.desc,'',v==='normal')).join('');
     const lk=s.look&&Engine.LOOKS[s.look.key];
     P.innerHTML = `${lk?`<div class="look"><span>Defense</span><b>${lk.name}</b><small>${lk.tip}</small></div>`:''}<h3>Your call · offense</h3><div class="opts">${plays}</div>
@@ -1048,8 +1060,13 @@ function lockPanel(text){
   const btn=$('callBtn'); if(btn){ btn.disabled=true; btn.textContent=text; }
   $('panel').querySelectorAll('input').forEach(el=>el.disabled=true);
 }
+// Grading is precomputed in the background while you read the options, so "Call it" feels instant.
+let PRE=null;
+function pregrade(snap, seed){ PRE={seed, key:JSON.stringify([snap.us,snap.them,snap.t,snap.poss,snap.toUs,snap.look&&snap.look.key]), evals:null};
+  const job=PRE; setTimeout(()=>{ if(PRE===job) job.evals=Engine.evaluate(snap, seed); }, 120); }
 function grade(snap,a,seed,coachAct){
-  const evals=Engine.evaluate(snap, seed);
+  const k=JSON.stringify([snap.us,snap.them,snap.t,snap.poss,snap.toUs,snap.look&&snap.look.key]);
+  const evals=(PRE&&PRE.seed===seed&&PRE.key===k&&PRE.evals)||Engine.evaluate(snap, seed);
   const byKey=Object.fromEntries(evals.map(e=>[e.key,e]));
   let best=evals.reduce((m,e)=>e.wp>m.wp?e:m);
   let wp=byKey[Engine.key(a)].wp, cwp=byKey[Engine.key(coachAct)].wp;
@@ -1146,7 +1163,7 @@ function realLastLine(rs){ const ls=(rs&&rs.lines)||[]; const l=[...ls].reverse(
 // "Real game" strip: before your call only the real score at this moment; after it, the coach's call and how it went.
 function showRealStrip(after){
   const el=$('realStrip'); if(!el||!G||G.kind!=='real') { if(el) el.hidden=true; return; }
-  const g=G.g, rs=realStepAt((after&&after.snap?after.snap:G.s).t);
+  const ref=(after&&after.snap?after.snap:G.s), g=G.g, rs=realStepAt(ref.t, ref.poss);
   el.hidden=false;
   const top=`<span class="rk">Real game</span><span class="rv2">${fmt(rs.state.t)} · ${esc(g.usAb)} ${rs.state.us}–${rs.state.them} ${esc(g.themAb)} · ${rs.state.poss==='us'?esc(g.usAb):esc(g.themAb)} ball</span>`;
   if(!after){ el.innerHTML=top+`<span class="rk"></span><span class="hint">The real coach's call shows after you make yours.</span>`; return; }
@@ -1154,13 +1171,13 @@ function showRealStrip(after){
   el.innerHTML=top+`<span class="rk">${esc(cl)}</span><span>${rs.real?esc(describeReal(rs.real,rs.state)):'No call (auto)'} ${rs.real?(same?'<span class="same">· same call ✓</span>':'<span class="diff">· different call</span>'):''}</span>
     <span class="rk">Result</span><span>${esc(realLastLine(rs))} <span class="hint">(${rs.lines&&rs.lines.length?rs.lines[rs.lines.length-1].us+'–'+rs.lines[rs.lines.length-1].them:''})</span></span>`;
 }
-function realStepAt(t){ // the real possession closest in time (for lineups and the "in the real game" note)
+function realStepAt(t, poss){ // the real possession closest in time, preferring the same side with the ball
   const steps=G.g.steps; let best=steps[0], bd=1e9;
-  for(const s of steps){ const d=Math.abs(s.state.t-t); if(d<bd){ bd=d; best=s; } }
+  for(const s of steps){ const d=Math.abs(s.state.t-t) + (poss && s.state.poss!==poss ? 30 : 0); if(d<bd){ bd=d; best=s; } }
   return best;
 }
 function decorate(s){
-  const g=G.g, rs=realStepAt(s.t);
+  const g=G.g, rs=realStepAt(s.t, s.poss);
   s.r=g.rates; s.nm=g.players||null; s.toThem=s.toThem!=null?s.toThem:rs.state.toThem;
   s.lu=(rs.state&&rs.state.lu)||null; s.floor=(rs.state&&rs.state.floor)||null;
   s.look=Engine.pickLook(Engine.hash(g.id,'look',G.decisions.length), s);
@@ -1181,6 +1198,7 @@ async function stepReal(){
   if(G.decisions.length===0) $('sitNote').textContent += ` You're coaching the ${teamOf(g.usAb,g.usFull).nick}.`;
   showRealStrip(null);
   renderPanel(s.poss==='us'?'off':'def');
+  pregrade({...s}, Engine.hash(g.id,'eval',G.decisions.length,s.us,s.them,Math.round(s.t)));
 }
 function renderIntro(st){
   const g=G.g, s=G.s, d=Engine.D(s), U=teamOf(g.usAb,g.usFull), T=teamOf(g.themAb,g.themFull);
@@ -1213,7 +1231,7 @@ function describeReal(real, s){
 }
 function sameSpot(a,b){ return a && b && a.us===b.us && a.them===b.them && a.poss===b.poss && Math.abs(a.t-b.t)<1.5; }
 function realNote(t){ // what the real coach did around this moment of the real game
-  const g=G.g, rs=realStepAt(t); if(!rs||!rs.real) return '';
+  const g=G.g, rs=realStepAt(t, G.s&&G.s.poss); if(!rs||!rs.real) return '';
   const who=coachName(g)||'The real coach';
   return `In the real game at ${fmt(rs.state.t)} (${rs.state.us}–${rs.state.them}), ${who.split(' ').slice(-1)[0]} called: ${describeReal(rs.real, rs.state)}.`;
 }
@@ -1451,7 +1469,7 @@ function wpChart(d){
   ${worst>=0&&wl>=.02?`<div class="hint">Your costliest call: possession ${worst+1}, ${Math.round(wl*100)}% of win chance.</div>`:'<div class="hint">No costly calls. Clean game.</div>'}</div>`;
 }
 function sideBySide(d, g){
-  const rows=G.decisions.map((x,i)=>{ const rs=realStepAt(x.snap.t), same=rs.real && Engine.key(coachAction(rs.real,rs.state))===Engine.key({...x.a,who:undefined});
+  const rows=G.decisions.map((x,i)=>{ const rs=realStepAt(x.snap.t, x.snap.poss), same=rs.real && Engine.key(coachAction(rs.real,rs.state))===Engine.key({...x.a,who:undefined});
     return `<div class="yo${same?' match':''}"><span class="t">${fmt(x.snap.t)} · ${x.snap.us}–${x.snap.them}</span>${esc(Engine.label(x.a))}${x.a.who?` · ${esc(playerName(x.a.who))}`:''} <i class="sq ${square(x.best.wp-x.wp)}" style="width:10px;height:10px;border-radius:2px"></i></div>
       <div class="${same?'match':''}"><span class="t">${fmt(rs.state.t)} · ${rs.state.us}–${rs.state.them}</span>${rs.real?esc(describeReal(rs.real,rs.state)):'–'}<span class="t">${esc(realLastLine(rs))}</span></div>`; }).join('');
   return `<h3>Your game vs the real game</h3><div class="vsgrid"><div class="hd yo">You</div><div class="hd">${esc(coachName(g)||'Real coach')}</div>${rows}
